@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+
+  #
+  # Our customized NGINX OpenResty reverse proxy uses an external base URL of http://curity.local
+  #
+  openresty:
+    image: openresty/openresty:1.19.3.1-8-bionic
+    hostname: internal-openresty
+    ports:
+    - 80:80
+    volumes:
+    - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+    - ./openresty/zonetransfer.lua:/usr/local/openresty/lualib/zonetransfer.lua
+
+  #
+  # This Curity instance receives requests inside the cluster with a base URL of http://internal-curity-eu:8443
+  # It can be administered at https://localhost:6749/admin
+  #
+  curity_eu:
+    image: curity.azurecr.io/curity/idsvr:6.2.0
+    hostname: internal-curity-eu
+    ports:
+    - 6749:6749
+    volumes:
+    - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
+    - ./idsvr/config-backup-eu.xml:/opt/idsvr/etc/init/config.xml
+    environment:
+    - PASSWORD=Password1
+
+  #
+  # This Curity instance receives requests inside the cluster with a base URL of http://internal-curity-us:8443/oauth/v2
+  # It can be administered at https://localhost:6750/admin
+  #
+  curity_us:
+    image: curity.azurecr.io/curity/idsvr:6.2.0
+    hostname: internal-curity-us
+    ports:
+    - 6750:6749
+    volumes:
+    - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
+    - ./idsvr/config-backup-us.xml:/opt/idsvr/etc/init/config.xml
+    environment:
+    - PASSWORD=Password1
