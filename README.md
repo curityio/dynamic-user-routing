@@ -1,53 +1,87 @@
-# User Level Routing
+# User Regional Routing
 
-Demonstrates a technique for routing OAuth requests for users to their home regions.\
+Demonstrates a technique for routing OAuth requests for users to their home region.\
 This ensures that Personally Identifiable Information (PII) never gets stored in the wrong region.
 
-## Setup
+## Components
 
-Add an entry to /etc/hosts to act as the public URL of the Reverse Proxy:
+We will run the Curity Identity Server via a reverse proxy, with these base URLs.\
+The NGINX external URL will be called from OAuth Tools, to enable testing.
 
-- 127.0.0.1 curity.local
+| Component | Base URL | URL Type |
+| --------- | -------- | -------- |
+| NGINX OpenResty | https://curity-garcher.eu.ngrok.io | External |
+| Curity Europe Runtime | http://internal-curity-eu:8443 | Internal |
+| Curity USA Runtime | http://internal-curity-us:8443 | Internal |
 
-The deploy components from the Docker Compose file:
+You can also login to the admin UI via the following URLs, with user `admin` and password `Password1`:
 
-- docker-compose up --force-recreate
+| Component | Base URL | URL Type |
+| --------- | -------- | -------- |
+| Curity Europe Admin | https://localhost:6749/admin |
+| Curity USA Admin | https://localhost:6750/admin |
 
-Then do a basic test that proxying to the Curity Identity Server is contactable:
+## NGROK Setup
 
-- curl http://curity.local/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+Map port 80 to your NGROK domain, similar to the following.\
+Do a search on this repo's files to replace the value with your own external facing URL for the reverse proxy:
+
+```yaml
+console_ui: false
+region: eu
+tunnels:
+    curity:
+        proto: http
+        addr: 80
+        hostname: curity-garcher.eu.ngrok.io
+```
+
+## Deploy the System
+
+Then run the following script to deploy NGINX and Curity containers for EU and US regions:
+
+- ./run.sh
 
 ## View Logs
 
-TODO: Open three terminals and run 'docker logs -f <container id>' in each.\
-Avoid showing all logs in the main terminal above by using '--log-level ERROR'.\
-This will work well for the video.
+Get container ids via the following commands:
+
+- export OPENRESTY_CONTAINER_ID=$(docker container ls | grep openresty | awk '{print $1}')
+- export CURITY_EU_CONTAINER_ID=$(docker container ls | grep curity_eu | awk '{print $1}')
+- export CURITY_US_CONTAINER_ID=$(docker container ls | grep curity_us | awk '{print $1}')
+
+Then run 3 terminals to view logs for each container:
+
+- docker logs -f <container id>
 
 ## Test the System
 
-- Get the Electron version, which will be able to reach the base URL
-- Use the preconfigured OAuth Client called 'web-client', which a Client Secret of 'Password1'
-- Run OAuth tools and add the environment from http://curity.local/oauth/v2/oauth-anonymous/.well-known/openid-configuration
-- Perform a code flow for the client, then redeem the code for token and view zone details
+Browse to https://oauth.tools and add an environment from the below URL:
+
+- https://curity-garcher.eu.ngrok.io/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+
+Run a Code Flow login for this client, then redeem the code for tokens:
+
+- Client ID: web-client
+- Client Secret: Password1
 - Sign in as 'testuser.eu' or 'testuser.us' with password 'Password1'
-- Verify from logs that you are being routed to the correct place
+- Verify from logs that you are being routed to the correct Curity instance
+
+Authorization codes and tokens are heart tokens, which are confidential JWTs, and contain the zone claim.
+
+## View User Data
+
+View user data for a region via commands such as these:
+
+- export USERDATA_EU_CONTAINER_ID=$(docker container ls | grep curity_eu_data | awk '{print $1}')
+- docker exec -it $USERDATA_EU_CONTAINER_ID bash
+- export PGPASSWORD=Password1 && psql -p 5432 -d idsvr -U postgres
+- select * from accounts;
 
 ## Identity Server Settings
 
-- Base URL is set to http://curity.local, which points to the reverse proxy
 - Under Token Service / Token Issuers select 'Use Wrapped Opaque Tokens'
-- System / Zones has a value of EU or US
-- A custom claim of Zone has been added
+- System / Zones is assigned a fixed value of either EU or US
+- A custom claim of Zone has been added and assigned the value EU or US
 - The Zone claim is included in the openid scope
 - The Claims Mapper adds the Zone claim to wrapper tokens
-
-## TODO
-
-Tidy up these aspects and then start the video:
-
-- Custom OpenResty docker image with LUA dependencies
-- Finalize LUA code based on Jacob conversation
-- Test end to end using OAuth Tools (Electron)
-- Deliver Postgres data for EU and US users and verify that both logins work and go to correct places
-- Fix the above logs issue
-- Fix up LICENSE file for this repo

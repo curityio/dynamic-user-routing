@@ -3,16 +3,15 @@ version: '3.8'
 services:
 
   #
-  # Our customized NGINX OpenResty reverse proxy uses an external base URL of http://curity.local
+  # Our customized NGINX OpenResty reverse proxy uses an external base URL of http://localhost
   #
   openresty:
-    image: openresty/openresty:1.19.3.1-8-bionic
-    hostname: internal-openresty
+    image: custom_openresty:1.19.3.1-8-bionic
+    hostname: internal-nginx
     ports:
     - 80:80
     volumes:
     - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
-    - ./openresty/zonetransfer.lua:/usr/local/openresty/lualib/zonetransfer.lua
 
   #
   # This Curity instance receives requests inside the cluster with a base URL of http://internal-curity-eu:8443
@@ -26,6 +25,7 @@ services:
     volumes:
     - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
     - ./idsvr/config-backup-eu.xml:/opt/idsvr/etc/init/config.xml
+    - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
     - PASSWORD=Password1
 
@@ -41,5 +41,34 @@ services:
     volumes:
     - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
     - ./idsvr/config-backup-us.xml:/opt/idsvr/etc/init/config.xml
+    - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
     - PASSWORD=Password1
+
+  #
+  # Backed up user accounts for the Europe instance of the Curity Identity Server
+  # Sign in with username=testuser.eu and password=Password1
+  #
+  curity_eu_data:
+    image: postgres:13.2
+    hostname: postgres-eu
+    volumes:
+    - ./idsvr/data-backup-eu.sql:/docker-entrypoint-initdb.d/data-backup-eu.sql
+    environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=Password1
+    - POSTGRES_DB=idsvr
+
+  #
+  # Backed up user accounts for the US instance of the Curity Identity Server
+  # Sign in with username=testuser.us and password=Password1
+  #
+  curity_us_data:
+    image: postgres:13.2
+    hostname: postgres-us
+    volumes:
+    - ./idsvr/data-backup-us.sql:/docker-entrypoint-initdb.d/data-backup-us.sql
+    environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=Password1
+    - POSTGRES_DB=idsvr

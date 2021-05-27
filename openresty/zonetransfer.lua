@@ -9,7 +9,7 @@ local jwt = require 'resty.jwt'
 -- Ensure that the expected options have been received
 --
 local function options_error(value)
-  ngx.log(ngx.ERR, '*** No ' .. value .. ' was supplied to the zone transfer plugin')
+  ngx.log(ngx.ERR, "*** No option for '" .. value .. "' was supplied to the zone transfer plugin")
 end
 
 --
@@ -36,13 +36,6 @@ local function verify_options(opts)
 end
 
 --
--- Used to detect the type of request based on path
---
-local function starts_with(str, start)
-  return str:sub(1, #start) == start
-end
-
---
 -- Read the zone from a front channel cookie
 --
 local function get_zone_from_cookie(cookie_name)
@@ -59,7 +52,7 @@ end
 --
 -- Get the name of the field containing the heart token, which depends on the grant type
 --
-local function get_access_token_field(grant_type)
+local function get_heart_token_field(grant_type)
 
   if grant_type == 'authorization_code' then
     return 'code'
@@ -73,9 +66,9 @@ end
 --
 -- Load the heart token / JWT and look for a claim in the payload
 --
-local function get_zone_claim_value(access_token, claim_name)
+local function get_zone_claim_value(heart_token, claim_name)
 
-  local jwt = jwt:load_jwt(access_token)
+  local jwt = jwt:load_jwt(heart_token)
   if jwt.valid and jwt.payload[claim_name] then
     return jwt.payload.zone
   end
@@ -97,25 +90,24 @@ local function get_zone_from_form(claim_name)
   
   local grant_type = args['grant_type']
   if not grant_type then
-    ngx.log(ngx.INFO, '*** The grant_type field was not found in a request to the token endpoint')
     return nil
   end
 
-  local access_token_field = get_access_token_field(grant_type)
-  if not access_token_field then
+  local heart_token_field = get_heart_token_field(grant_type)
+  if not heart_token_field then
     ngx.log(ngx.INFO, '*** Unrecognized grant_type in a request to the token endpoint')
     return nil
   end
   
-  local access_token = args[access_token_field]
-  if not access_token then
-    ngx.log(ngx.INFO, "*** The '" .. access_token_field .. "' was not found in a post to the token endpoint")
+  local jwt = args[heart_token_field]
+  if not jwt then
+    ngx.log(ngx.INFO, "*** The '" .. heart_token_field .. "' was not found in a grant_type request")
     return nil
   end
 
-  local zone = get_zone_claim_value(access_token, claim_name)
+  local zone = get_zone_claim_value(jwt, claim_name)
   if zone then
-    ngx.log(ngx.INFO, "*** Found zone '" .. zone .. "' in access token")
+    ngx.log(ngx.INFO, "*** Found zone '" .. zone .. "' in heart token")
     return zone
   end
 
@@ -126,7 +118,7 @@ end
 -- Get the zone value, depending on the OAuth message received
 --
 function _M.get_zone_value(opts)
-
+  
   if not verify_options(opts) then
     return nil
   end
@@ -136,12 +128,13 @@ function _M.get_zone_value(opts)
     return nil
   end
 
-  -- Always try the cookie first
+  -- First see if we can find a value in the zone cookie
   local zone = get_zone_from_cookie(opts.cookie_name)
 
-  --  Try the form body if it's a POST
+  -- For grant messages look in the POST body
   if zone == nil then
     if method == 'post' then
+      ngx.log(ngx.INFO, '*** Get from token')
       zone = get_zone_from_form(opts.claim_name)
     end
   end
