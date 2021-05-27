@@ -42,17 +42,9 @@ Then run the following script to deploy NGINX and Curity containers for EU and U
 
 - ./run.sh
 
-## View Logs
+Then run the following command to view logs in three separate terminals:
 
-Get container ids via the following commands:
-
-- export OPENRESTY_CONTAINER_ID=$(docker container ls | grep openresty | awk '{print $1}')
-- export CURITY_EU_CONTAINER_ID=$(docker container ls | grep curity_eu | awk '{print $1}')
-- export CURITY_US_CONTAINER_ID=$(docker container ls | grep curity_us | awk '{print $1}')
-
-Then run 3 terminals to view logs for each container:
-
-- docker logs -f <container id>
+- ./logs.sh
 
 ## Test the System
 
@@ -78,10 +70,16 @@ View user data for a region via commands such as these:
 - export PGPASSWORD=Password1 && psql -p 5432 -d idsvr -U postgres
 - select * from accounts;
 
-## Identity Server Settings
+## System Settings
 
-- Under Token Service / Token Issuers select 'Use Wrapped Opaque Tokens'
-- System / Zones is assigned a fixed value of either EU or US
-- A custom claim of Zone has been added and assigned the value EU or US
+- System / Zones is assigned a fixed value of either eu or us
+
+## Authentication Settings
+
+- A custom claim of Zone has been added and assigned the value eu or us
 - The Zone claim is included in the openid scope
 - The Claims Mapper adds the Zone claim to wrapper tokens
+
+## Token Settings
+
+- Under Token Service / Token Issuers select 'Use Wrapped Opaque Tokens'

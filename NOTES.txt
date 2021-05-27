@@ -1,0 +1,11 @@
+1. Error when running Set-Zone-Procedure
+   OK if actions are switched around
+
+   Cookie decryption error or dropped cookie?
+   - se.curity.identityserver.web.cookies.EncryptedCookie
+   - The cookie with name _authnSSO.af9c714d6b4d8583159c783508884ebe4d67a156 could not be decrypted:
+   - se.curity.identityserver.crypto.CryptoException: Could not decrypt ciphertext.
+
+   Could be related to proxy headers in nginx.conf
+   The whitelisted internal-nginx host name may not be recognised
+   Is X-Forwarded-For relevant?

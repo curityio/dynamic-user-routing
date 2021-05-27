@@ -3,6 +3,9 @@
     <environment>
       <name>curity.eu</name>
       <base-url>https://curity-garcher.eu.ngrok.io</base-url>
+      <white-listed-proxies>
+        <proxy>internal-nginx</proxy>
+      </white-listed-proxies>
       <admin-service>
         <http>
           <ssl-server-keystore>default-admin-ssl-key</ssl-server-keystore>
@@ -14,10 +17,13 @@
       <services>
         <zones>
           <default-zone>
-            <symmetric-key>457ea0dbdedb24ebc7ddd746799b84c0e0dbcac92ce5248c96ca07bdfd7aeb36</symmetric-key>
+            <symmetric-key>a4fd6dbdfd1712cd46c703660c23156f8c64804e5d7b0835982710ccbb98b237</symmetric-key>
           </default-zone>
           <zone>
             <id>eu</id>
+          </zone>
+          <zone>
+            <id>us</id>
           </zone>
         </zones>
         <service-role>
@@ -46,9 +52,33 @@
         <authentication-service xmlns="https://curity.se/ns/conf/profile/authentication">
           <authentication-actions>
             <authentication-action>
-              <id>zone-transfer</id>
+              <id>Debug</id>
+              <debug-attribute xmlns="https://curity.se/ns/ext-conf/debug-attribute"/>
+            </authentication-action>
+            <authentication-action>
+              <id>MFA</id>
+              <multi-factor-condition xmlns="https://curity.se/ns/ext-conf/multi-factor-condition">
+                <subject-condition>
+                  <subject-pattern-condition>
+                    <subject-pattern>*</subject-pattern>
+                    <second-factor>
+                      <id>UserName-Password</id>
+                    </second-factor>
+                  </subject-pattern-condition>
+                </subject-condition>
+              </multi-factor-condition>
+            </authentication-action>
+            <authentication-action>
+              <id>Set-Zone</id>
+              <script-transformer xmlns="https://curity.se/ns/ext-conf/script-transformer">
+                <transformation-procedure>Set-Zone-Procedure</transformation-procedure>
+              </script-transformer>
+            </authentication-action>
+            <authentication-action>
+              <id>Zone-Transfer</id>
               <zone-transfer xmlns="https://curity.se/ns/ext-conf/zone-transfer">
                 <zones>eu</zones>
+                <zones>us</zones>
               </zone-transfer>
             </authentication-action>
           </authentication-actions>
@@ -56,12 +86,23 @@
             <authenticator>
               <id>UserName-Password</id>
               <authentication-actions>
-                <login>zone-transfer</login>
+                <login>Debug</login>
               </authentication-actions>
               <html-form xmlns="https://curity.se/ns/conf/authenticators/html-form">
                 <account-manager>default-account-manager</account-manager>
                 <credential-manager>default-credential-manager</credential-manager>
+                <password-only>true</password-only>
               </html-form>
+            </authenticator>
+            <authenticator>
+              <id>Username</id>
+              <authentication-actions>
+                <login>Set-Zone</login>
+                <login>Zone-Transfer</login>
+                <login>Debug</login>
+              </authentication-actions>
+              <username xmlns="https://curity.se/ns/ext-conf/username">
+              </username>
             </authenticator>
           </authenticators>
           <protocols>
@@ -254,9 +295,9 @@
             </claim>
             <claim>
               <name>zone</name>
+              <value-provided-by>system-claims-provider</value-provided-by>
               <transformation>
                 <input-attribute-names>zone</input-attribute-names>
-                <value-transformation-procedure>ZnVuY3Rpb24gZ2VuZXJhdGUoKSB7CiAgICByZXR1cm4gJ0VVJzsKfQ==</value-transformation-procedure>
               </transformation>
               <expose-in-metadata>false</expose-in-metadata>
             </claim>
@@ -272,6 +313,10 @@
                   <id>default-account-manager</id>
                 </account-manager>
               </account-manager-claims-provider>
+            </claims-value-provider>
+            <claims-value-provider>
+              <id>system-claims-provider</id>
+              <system-information-claims-provider xmlns="https://curity.se/ns/ext-conf/system-information-claims-provider"/>
             </claims-value-provider>
             <claims-mappers>
               <claims-mapper>
@@ -338,7 +383,7 @@
                 <redirect-uris>https://oauth.tools/callback/code</redirect-uris>
                 <scope>openid</scope>
                 <user-authentication>
-                  <allowed-authenticators>UserName-Password</allowed-authenticators>
+                  <allowed-authenticators>Username</allowed-authenticators>
                   <allowed-post-logout-redirect-uris>https://oauth.tools</allowed-post-logout-redirect-uris>
                 </user-authentication>
                 <allowed-origins>https://oauth.tools</allowed-origins>
@@ -424,19 +469,19 @@
       <ssl>
         <server-keystore>
           <id>default-admin-ssl-key</id>
-          <keystore>data:application/p12;aes,v:S.OWJhWGpIOFdLM3NYR1lOOQ==.12aRkgXt-dIG9Suqw_MtYQ==.p0D-xW5a6sm6Kbvv8MR_6yZcKa8tSyLY6J00UafE1uv9Jo9lcb2xMaHtvLI7X9B-zLquZKSvEaxY_M30ZxgnlJj8BvpqE81IaODYtUKQkbl7t314WIBLboy5EROVy8ANQMOuLQBWF3yJaeYIYUy2HLXg8i1nyoX3m4zem4_dNNJjw2tRnYD-DopR9KnsNA_UWQJLBangrgIhh8YzIWztHlIr4PgTIAazDdSveVxpOdjfboll_Zr4-NNGmfF5RAOy9ZO1RbuunQf6_uyJ2kApmIwNwscPf7olW6Qebn3i4PQvf1QhArKXH7pclRPNwzj_OGyWhtmPueCi6SArhiY6whcWA8MXRPwmf08g6kEXs2QTX34j89G6ujLhOqH1GPGHo5WS0nMxA5Xa7-FcOmUZFyxMgNXelmbn-RNnyD76Yi7wcI0K3rvgfJvt6RD-HKbBa1vYPrkQu4CkURLLRucJuotxxuhDNIQAQncLVkH3LLeDdnazQ-wRWffOx2jyNTq8UR0ZdpEJsjWqBpC3iMg0rzuq21UvfqW7ySMz8Rj3_MF7TJsaeGGGFlVzHRTMEGmgyJp6TUWUgvQfvubdeBhB9OkKTfZDcXt3MC6jBs1dyTAOc22ystC4SFgKBVw9hvb75kteONqUK39NKns5_cRxt4-3F46fG3KsuBItcIzHSpEOEITKv05hM80IThntr7diMQYVDtIFGoNqBkQ4F4aMLsQDTyHmyA6SGLin3dpDhp3-Bhw7bkTaCcZQSYGmNELrSsVipDVJvobyHRP5GKIYI3PCErUfAUmKXUNMYXBTAf_yaBTQlW3nQqEGhipCcvyvubIeUQE3c6CL9i3GQmMbeTxs3RepnTsGSUVu13g2scnCFgH5-tqjjTCNAXiaf5swicfGLrji0vkTSXXC8Yy9oZbhTedcNpZTaWigb_B1Sn7ftOZpsVjpmB8DC7DBZBTNBsCaI1CsIMy_L2-5Pv3eDdnzrsRvFUEZcS_ragJKS9zKaTBPTKwXVS26y6jGUQDdsJIcGEC8HcG5KKGw7ue1PiVZvTtTtI-JjYY_iH_7VAr8OAPtN2qSso9VXpFM1CRBIs4sJox6mlrGnTYq_bYmYRWTsgPE83CZY1Pg8k4wViv4l428FE4kzFq-6965AvLnxLQe8Pdu5wkyiFaTjNnEu4W0Ym_PMvF4zx5OxYEuwNhTb3fBfiVzgucT3i4xhuS1ZxG9AvBvncFkCqdF2wU33f7obBvL64n59v1krObmHiUpJ9oANGDsMZUmNBaJvF0CWUFzO3zKpeQaaxmO8t9FFIRhWe6GTv0wA-AjwwaTupoig3lS-c3aZCj90HkJKbovXVdxVPfftowE8xAS267s3sIe0bop_pQW13bwF4KP1FNuAFcQSK9qXd8KnkjnEJ24K4vD0RpGz8illYy-j8pYWisHsE0QN9YIoS68M0-YJ13ApZTiIOcJJKrZJe4tPaTd_3qXkP1Q02K5Yt8LiZCwCUEgXdVcAR8uosM4L5X07xJ2U5U0qnAQecTcsmX9HS9PUAjQi2NCpCqUjBzIrc1FEXVAFswTE4EZ5pTzJMHJn4dmKWn3VElh5jRGHu59oXKXAnqW0pVno8Jq6Zvtqd9a_EdqUrQTUP9wEA_BleqKMdG8N18mcgJ9XE2YkPhntWu0DAqz8rKCMg4RT-y7PCL2AUqGM9Kzl-kap8m2qYrBX-kN09f9m06NB1ns-EqA_mANpZRY-fP0XWMyMl-BFZ91P7RhK7NdzXa8LZJgVV41u2tdGEXb4xHs1R0f29CjPwx5DgwbH2NMb1eatpLogE8JM0InE0AEWnQ04j0fYSGIzSPVPVtDVO2o6mx_iwU-cnBnJFCceclA4ngx1ffuCU6CeT6zqfROnc845cdNNJxJkuhUk8fLLQS-LCbxgzK4FaZZ8fJ0p_Nqt-CPj4h7kIghb9S0KEL4pK3r9vFeYSq3xPCrHLYohlndpf42lyJOJByB67C5fJuA3QYQQY0BQmtU-925b5GT09EH4PbV_rQ_WTRPtUEdffNpBACkYuM8b4bCp23VVLwqlUyxeEojdDg6RsvuVgvhWNtz9ZunSAe9jllc27d1cT1HLIpuENFvER8aL6OB92xUJvxXLY4RptywvLDhPQZG63N2dY24-NR2J1tE6xD2cQHFC9M1NCGHLWQY652EWjLkfGn7-bOW9U9NhaAxWTCr50RTa5YALUdcvFPPjHVZno9wUQ3nYnxZDc9xbSGvmdUgdnQ2pan2q9idiPBRqvtx2RZe5QD_Nv4GQJFjiXtUhTLwBQ0ydWgyQRb93hfsg1Kr-FJXu5WCa8N3hEzCzwNZHmnBVSXhEeHDrf5FOmUFU8lMs5BuQTrVUXATWAnvtNgMqor2aZP7dbwXfGjaioTRlaXzztZJtZqroehW8SV7Yiu7equwtK1YDnLoBzIlghOCGvaO9r2Sf7wontg76NylMtql3A61Vy3fWvu9UakV2Lj9_AVFTw6UX4WgPfvGWVtfuKlgWl7Ggbd3EqUKdaRzzkV1lfykEcoTLzJb14QeWr57Bn3-BGjudyQ2jGB8R0KWq38BOvIgWGr2ew81ZFkKCX2vlzisVK_kiAIe_zgGYPDdBvSHZOfqnL7tj6dL-S_6B56Cu2xlLI3c92Rx4srHecMguxyyokoaEEraim5YqustGp4sd2r-1CeplRQYvNT0MUXI6de2ALowkoztPA1DMDtOxKOAPEManAywKwFlU8-AuJMgyXw0KJO1x_8jEwOY97_Nt365cM7c9kAWnD4zJCEPzYNwyUsN6No6wk6A7_DYdpG5TWGGFqo6DLWchdMUS1J_mjGnVA3gDcIrCYdvFPYOQ7WiRulSkdirz6PygHa3Ut_H8KdhHlJDvnwwJZyee8HUA9wLDXFha-odm978EkY_cEUY5vwS8NXYiPQay0NJRI49Gi6ETSLrXBkwO3U4_MDP1BFrIzWAtPWEIV_2A5azPBBtuUS4-gsAMk9YSG0hnBO-m-yFgp7bzSwTC9_Lfb8HL-bVSNePn2KCTPhnw-PpNIKJ8YqBq_KlarH3S_EwAUtUoQYyezbePc33JVw6g2UrvX33YiX4YSMD8G6wZbdKQXl5kvKDqjkAiv-zkBc4pS1FvO3DjNACC6MpwQLqS5C0hhvPBIDkKE8fULWbPlLx7w9cy-8d_yesdR1DioN_wkzLSaR-uLLHy7WJrTL4FT1GFldO4Ut1orX1sgGHeY58yJ-aOxqQVfkgBo3mjT0ScoKAhNdIiwwKdiGUEKSPcbaoTroq9txMTfBfre1YBEBzm-pGO_B8-t14iBk8jwqjWOpwEsTlP-hVQ4DqLJ4okfG00P83uRRLn3jzsE2Xb_Zx28ZVitq3gp6ISFSrhAeg5LxTe3TATn0yai-jRgoX34CP1c4mCJbnvmHC0r00FK_9gn8OjCiE-sXvebgjICRreMshy4LSITdY.0znRruBctPeSmojBxbH7VoJnlblBJ9lWdjs_GNiwFIs=</keystore>
+          <keystore>data:application/p12;aes,v:S.RVZsRjVSOEN6YXBQRkZIYQ==.5E2xDTGr5yKRAe0hA9XOew==.PdtRV34mYpPdeeALmQbhIhUEFnVoSNTlJC-m99a_4Q7ZKOL909QNzO80qdJAFYxhoIAr523XmsFZjFCdRm0xrpXGepLIattLWhgvqMSfGlbr-HNItmHR6kzlHBY4iX-nm0b8tzvik_TA6mMIxhBmtprKWUo4f7hhCAi-MyyUjUeV2pvrSiQWbTzgYQknLmqnIGfRLt6anNSXZnHAaLo5jYsM-QWCistXL3F4reCLEKyolCZYXja6MU925jIvN_6ytNQWuRkUuZvcUKY2XZexDmr57uD_O8clGZBB9erWzrlsQCQqwoFSJ1df3ZrX0ChIhWTeSGhRDWRn4fgSrTmHtEFEZ7DQW07yyZI0_Kb10K8iFkaxsmImEkuRfRUQZnqTW5LJt3hsH_cVK6rNuoo6ghxD9A8t5DxaM-l_oNeNCuTTSU0-kMORStvmyUfgyojhAnPYOQaFC5IA3CkvvNDf622rzA9-um0m8SVI3hmC9T1lBk7CxR6d2WO96gm9yTNAqfU7t9soC7793NdmBo-2PoiAOHwlaUTaIWLhaFKBftYqMKvWBPbezChlRRGmm46AwjJGK0ObFX7FUehR1fFpAfk76w4OnFwaWgUnwKx8EMuY4JoLlq0LP-Xb2MngZaaZ1jMXAv8999_DcsIEb3g7n6H9__dKjjgR-c7L8aTiw7OdpwROVichAJtPr_16i9ifwFkI5omZmnFWldi0SCY4S7khpGq-3cQxZAPX_Ipr3gTOO4pqEfb69E8wie7AaJ7VW5jnWfzs7oIyqOPS5B14oUGvlGPWuUL4DpRwg5vd1LPbVRuULrhNs5rRfQBzLRKONpfxxvikqpXuYc_eGYsNRG9S_30kgCd06eD36Iu6mpMagc9BYYgbzhMXR_AzckQjy3VjfIeuQyL-es7nisy3q-OkguEhrarT3Qh4-aCuuzGMn5IDHBdRexzshzt8-HHQ5JhTbywBib3bQBGBjFqEvPb2I2YWJZqBR_QZvzX1a1Pk_0Iuf9IyBge8kpgmIxKAIq176G0o98PdK6nQiemgeiwZn9H1oHPJ2W3oTBzF-5jeuqxtp2EKap0YBOfKXHULi-VdziNJ8smnvhTkPGsq3dUNMGJ7pHHYL6_qBnEDh-Bv0ZSYYPhJ7vNOg2j71WcArROokZj7BFbYMlY68PTbWfsNqawDU19HsDxGdSFSZ-ylDyQ0llchDFtNtB180iNJtVg2gxaePPnNon9K3Pat1sitO0lwXFPOfMdP0UNt2NznhOT7j0KQ_KnjFpkyRfyOgPFdROvSxby_aJ8jhD29dxwhx_liftflqJw5iBwYs7N5Tu4oiikd_mJmCKYISoR4PimBvtvLyfz8hC-bKq9Dee044by8kEXuSBZsrhJMTabetoHFYftHi7SFZiTGJnr3S0bi2gBw356i5G7lCfREA1r8-S6Uv01aiQ-a7imwJq82nafegQ5fDox9wZcVGJrYrnPnaSzBt1VqGhwKOXJyK8tz7Bqr6tnaJxWaMZbyo6jAe_8J3ckbqLUDwS5JEYzIl3xjjM6ucat51ftg3SfgauvP7-9nMQ7OpIk9BfmQfVE1V_g5tXMspeajj4LdC1XX80uD2F67P2hO-jDo7RhO7Y4pgbdxhbxCfXRBvejXw1izhFNfY6TnmhEdH-r9bxHbA1h2TgMGjtJR4hkCxxNOiXRiJyXPa4LaJNBfq8xAr_zKnJGrSyQ84ehzHSCxR9mmEocoLE7MpY2MRcILcc7a714zEgKw6kzv5RZiWWaQlEo--Kx-m1fwg0etTa7e2Q7Z4gg8JbgwSyWcAqf4BN-4iavz_DcCIJuFp-hAoeK--0Cu7uJI5KE-Y60wuSsAc6jfhcG3SOb2wG9k1D1sdUDRjH_OQlBiyEkdJKNQ_V59vFWsqUVAcpribOwgBkTdKZew1aodMM96IyBIp4-B-lvibY5NAvpYwGGegGfn4NnbVN0dFuSvwT-z_ks3Ukhq26rOvRxw2dt7OvcolknmEhPCATSKyyqr-kBvvdE8CY4Atnp_grxe38zUYZ1eYCT3O97-yKlpHy1M_oBiyqan4ToH9Bu6oVW3BB0m2ILjuZBZ6nocoYVlHNez-sATRe4rnhNegvhv93QdYqsQPQKEQtiXJxfgfVNUAwlvWRWXiS1vYvD2mh5PgJ9JrsEGRsfs1tTwzXKCPH2xajLbLS-3vDr7lG8uxAOIVxvL9AH1skdo9MKCYtEZ2xGylzqsNWfHxi93iskpaCoG5Xd5BbA4s1py9DA_3kM0HGPLnSoMTAGXI0c9UzJpoIZmmLSqS9XNQgSst6mb-UfGP3I3V9StNmHMEI-0GaRV88HWrQSeMT8wglNVqFBH65CJYF2RLGVtSZTs1q08rXV2hvgueMl9FQXZs7d3SMFYhcD-i5X_vIEeYce_CUeiW5anyElpI1GY6mqs0jMYXjjJ5RiXY_a03ntQ1SbGsC_73MSaCZgMxiY-ZZcfMfJPlB2yCeoiFvJT1qDZZ18_jLULYJMfE3jyXBREXGTs4iZVUencq4-NuVRKHCkjNt90oSSgwyq0bQngdqnEDunovvBAHOlOiQ52qAm4icKzjCvcOhCSExfukQLjeu3Iun9IpMWK58VfzEMfWvI24843ITw0UA8v5hCuseKgj-AkqeTOY4YCY1KKtNfKdmKOUIlGJ49zBJIONrRgsMAB2VcXlnzrRZAQQosI6vo2UPXzzaEuDOTyvq6kx4kDJKU1S0Mu9V_S2WzY1KR3UOiPI0pO_8lgHwB-Dihzzpkhmeo_nekIN8Tc_vcYE4BGj8ltaP4Ql1US0-S1zgeIqxyTVn-RdAe7dJ5Q8m5kTXHcAIsqauDsMqFdAgC0stBiYDr3aoIlX-ubJMRG2o-4fIKtoFlTe5jl34mZawL8J9uRgRHx3BOZ35fQoX-UVhSFNruZOuMp137657F_kaHmfXXaowajay2lWJVD0OjshJoc3m8KSoZXvW3oZs_GhJG9Hk7jaaTBq-uiVeuT8jjW0idkdjmNd39PzDGIePs7YdO48iBeWWclDLy5GoXBhUaCyXIBpwCGGhcyJZSWEruO7q6S9IHoN4HXp4cZhr5D6W1Y4pEyJdCQzINNxZRCpNcZvKi8NUzBnNGsEdHM4ZVyWhQQqpjLrN-_H3GBHYJ_1pdQFD4StwJfqQbQFnuLKnRVWxfSFeJEl3Lp-VvaVsyQlo9o0iXz2K1tVbXab-0fKUHOBlq6blmcJKTbZtYfsx0L-mqussTOK1itnC0kQziiRHvRLu0dDZ8viR9peBDc0e4w9lbXZPDFvFqERzelNvxl7bOPxsiPrZQ3t2MLSvmX6-53YbbKtuAzNXV-sTJTPHNbb_n-02D-qDY4t5qoIjfyiPFYEQE0PYUW4m_t0UW1lx44I4XDUp_NGi1H820rliY1fuFQpqbNYwJyVuo__FD_ZnLTj2vNbIoLi0Ea_2lbF32g.gQNnfRhEDEu8nzVcGwi37DG3EZSqHi8NBsOIlwsZEMo=</keystore>
         </server-keystore>
       </ssl>
       <signing-keys>
         <signing-key>
           <id>default-signing-key</id>
-          <keystore>data:application/p12;aes,v:S.ZFd1cVA4d3RRWFVrS0o0Ug==.CntZCq40VsesZ9HkILlxYQ==.ymzlS7j-HosfJ8FPW14WyZ6ZZUDafizcTi-PCPkk4kZ9IXLNJr69k5bre3A_yJ_rRouapj5ABlEYGfzeenJiaA4CsRDA1giiOoIJDcuR5L6OJux9ESByk0v7jnz1TgrrmZqTCf7hRrMom4U-MYduVDp9DlNwDWGvUDthWzLXQct06YsGpwaDKT-zXcL604eYnQHT1BjdrcAevAjTFLvBzlDNNpXdAFh2XDyfP8GdL0pmdu-_xGLycsttgD0B_CmTcPOidPJah_G7pl3dguubGElT4hhRi3n7EiIHy1hqUS9ZBsvavPD4lneZBvGdd-rH2NNzHlxlU-4EB-nuO9KUom4PeS6CFZ2ecF0XDP2DjfP6puuYdZI5NhA7Z7qywThngH4B8EKA7QYaYC-cEIs6AbmqPlNsXWe8D3v6m7lcOxkluG6csLYYvTqlp9oafta4i-XppfR6n7gs6LphEsJd23TYBRBrcP8sFiSTNTA4WrRlT4qi3t1mVrtgULbUUxux9wDxRfJfWsdDcMZZ6yI8ZcNYhkYRFa1LdfmSro4q7MM31hMNwS9ya8oY8a50wrjGh8CaUQbgcIxcrIUUJ38Pc2ncB_crAUEdPFcRJFiugdWMzwtSgoB255iXgEpdEnskh97sqLRHTX5_i6fjR2fYm4wKvUf7I2Ig6e7R-3FSxoWWIRFDnFF-22aIaCyQswRsfTJgUuF_CZ3NQYWxtoOjgo-HzTp0tzaR_zFA32Z9xr0yC-zdCxDFlJ7GdeL3R0vRcRo9Xg_dxZti8SnlP7vWfa-P2pGijQPJU1dUbqvvbihSW7ur9iKD0ciu1xbz7_9ziLa8QyHMmy6Go--prAflzqGI9v3K1AQDl2WidMistHnL3VptyFZIHXrEGbaT0m0_r98bkMrO6USHi6KjkDsk71fDrWJRCxIItq1kBjKo7WDQaoRGMDHchZdEaqIcRDPpSi3DJLhWIPAHkCZ4yMP6XlteNkODgW7joq7oQTZabmW_G0PWKAwhy19ZU2v0_LO1DUZFnB5s5aZ2CY0UY_X7nvpxEppS-rjtSVZRxcF0OVCPm4VQv0xo_bPjGhJBXhQDVjPA-iktmda518MZEitnIlqc0QZxwOvMhOAhnsNwSlHmFagCTlQmjSLlSh0RTvLrZ96BCG5o1b5VUGUuzqHmBpCAkoc9FHclWXlxIbDH8yr6Oa7pb8_1Vn4rYEyfQ2P7dGih9YQLsSLLYZd2K-RHHJJqQNxB3vMPfHVsF74agsJ3nAoEJa9vwVF49gnprZo72kp-e43M8396zWweR-aK_nVY6mq0e5rDuT6ObbQ9pAlX0YpcQWcvy7DLdU46xYP00iUSvf7m1YBVsSBnt9K5G967YrAwetkuK-LUvOUH0bgrShKul2OSvLtD4AsJiHW6INfPAJrWYcVdNB2hVdzu4Y6cXeu2PnYjmxfzas9E6zlJ1yHkogUu-x7O0KPxSwCo2UGuqqavI2oOMbwsjyTiWynu5br8pRI93DJNv4PMwxB446SbMRYnK4agj4U7KaHEs5L7ACTbe48VbghabGSg24YaDXhnz65LzVQCSQKlFG0XLmeUxLo5LX0P14-AkmO7dD7SyDShYI521lAplUsLIybZPckHuEt1--jGr-E2cWW9rpnocIXUjFemV57IunOJ2td5T6TywZ4LO3NGfRlfK4096VNC36GVtgwNrbKuPidxuDxG8rcpVUxu6T0u1dr1-U_G_1J79QZ-UnfZxGrw85wDTz6tFcee-1ZQ-Lt9n4NvfJ_zNOcslHKyg6HkqEkMniioZ5TCA5rTRCs9LJlh3kIPwN6jNnUpXbdZf7_qptgacyuFo905oxOSRV8C9zUGkq-f6W97N6y4clHKZs8tbjwrqvEzpg54Y-5aL5LT9noc1-XarBoB-T_ZqfAz2Mhne-SsVgF4fMh4LEaqW88tRDamDYZ2DSMS3AkYhtBKem4kN7di4KoyBsYSV4TVG0T_1Q1DlwDMdcJmPKeGHNt4dew-SSJaU4Gb_f4h9P1Y1lTgHq-80E2mpTwnAoscxupIunNFE0kfo8wIv2LEP7hJpQ7uzVs_zJqIDeW66YjA4fA8U8_SQrwY8VtloXtuHsE4dLJvupk2QD5p3gR41hOxDGwYTAZCIHVgFnJmGXsqsztbMiRxq3L5HxmBfkXyeYsiB0UmNVmTrPJhpuMvHh0C9CKFDtG55RemHpMBAcgvQwl9Uj1AXfSvfdNKHwHdt4nPMMCEIfGh3YcyPTnwjA_yuuC7VCQdpXDdYP1SqSQIymhbwn0_BkU_7CWDMnNk9kNiBp-8j38UYuPPsGZ97gF-Op5UDks8b2E1U7fh0XjGIvgs-gDzayoDDM6YUPNYSjKFUEhtUalayVBGGf6QR4srn8agl1Yq1nBFdMiPrMndU76MKHgD5WkzigGT8vc5MEzx0LMa8ubTVDP3Og12GQQfQvTtTHFPv2P1c0nPumPCWiDpbNQgrhX2INZwZtYgOQjmNjjHDHK6hgsaXg-cBzzt0jSqcUi0iYSQDHxG3HPaEG5xAndoB9TIZZPKTTHgdoM7aBW9bW8BsK-sSTKUSAAeLG7jIJkK0IZ9EwsmamIVrurJitq6eMiJ7nALE0UPwG1zTNs4fmtGqHs2pmWs_vPuSybFdcDXVBcMqKEWzQxasoYjluzk6SbQqyU-AAtXlABs8fmj4I_uJuMXskJdw3DtlaK1rJGL6NaVl7hXnbcBaNeJQLFqBeMBigm0D_3w_B7C4Z9Ox7SpKMfAPffQrpnX-OkvByKup-XhlzYYRzEoAQ5DpNHHcwp_QhN2Do0yXDNRiciB7qz_JlZyFz3U0tWJW6QTIx_Y-Oer0v_a6UoI3k79zqJA83lEwnsdjt8L-8ryW0UOuLMk1OfdzFquywiblG_laG8sCMFUcEEQGt_44Srr6gildaPirYIO9PFRUZEOJXemMc9xmfzjNmp_uYJiyw1wrGkW58pKrdBWU1YI7IKYnwiC9xsHi539b2AZ1rXMhGpHIF4jkFMMjeEfJwq41Ho6W-3n56UvLhUex0pustEal0Ojw4CDuS30_-vH-QmdU4UvGTrvFplg0ix0mDztjYwveuDS8Wqgg1o2lY1o5aRQj0m6JTpdO0PIGhsp4FNUprp_sWC1QzSimqZBljlsfZmX3wcY-wTxMyDGcANFBbrdB6RMB64OBWnJMKKRxAdANdNRir1cih5GjEFka3KQOEhpzyJSMwoLgV7k7AfDfBIBTn3-u9slB4IJA1uEc-aJ-T3px3ma00Yc4QQtaIvczO8TWHK1LGb6PHK5Zo80hdGKqao16p3mNLELLsa29qiU5amRV0bFS0MjY1z7a0BZBgR2KEKklcRzsRCEzI8k34jphqpKTZ6e0eMq-mzfsU-pd7Qfzyez8IebK3TocfEdlbgf4Y9gxy8ebfmEUjs260DUpZrq6bHFdOno6-KmTa7n.gNaGg4BNM47BMoFwF_bHeoXxeRVsyehtNQZm3MPp36U=</keystore>
+          <keystore>data:application/p12;aes,v:S.WmhyNjhvMHNBYVBSeHNJdw==.hjGQ3vW2ieaMN_9sAf_EpA==.Jf-YiKnXq13Bpab74OWcZvTE_pZ9ilseSWUyXAkVfjzoidWupKuLMoAaQS3RGubvlF0kJSgrg2rPIqyS0e1ifBd_oJK1TlbSoRviLsMcF7iSI1kdJCcDB3Zvg8OtAsN6zi2IHjNEz1ZRkPdx1JTBvyrq7MshPt1QjFErXSVzhriu_SnkDpW-GDDC3M33ZrTW6jUz9ZAvqzeZgX1ZfBrPkM0g-ccAsyAqoWgo3FPYjhY0X7pzeC2Sk73HbwnP9wFaB3UjgzvGAx-HVOMbS0gbgWomPqEQdIyaJjfOunnMRGW9MYmAc96gIsR-ur-1dEFRdK_5pVGEGQ4kSAdLA2h9mjuHkyZ7EE-Ej3u2GZ4WSrWuUf4a2uIjuqO783VIXRNx6XQQWBtI7_2CGGphnCzL0cz5g6DB_tyLIKchdvkfsUcb6RScSHlPiert643OAIv55_co_9quKlL1ry5lPd-YbuGff1ar6N0lCyvKadFliFDsgeehnmhXBO_2YfqbBwChKVy0nIRj-oG5foo0J6lfHB419JDbH9Hy_FDuz-ciXGXreFcy1cGXJnKq9wAl_zWBsyxla2iyItMmop6-067fvTk1aD0QvS7HbphZrbjjPqPg1U4v5HQvctiSBTRplSTupI99e2rTMiJf4QXEFaFyz0vp-HmPO-qpXatOr4wI6aplOwik8PWHh9NtnIcUciIDXKeThsTONV41hlkB90T69e0FBbBFkgFryzKLynHgv40TJpyXemSBLcixnkzYXEoaGysZaT62Agg6ux0OgA3iwZFsXEzGP0_TfJJv546EuWJRrngHDgx63I3Le5Ohdl_0ANuVWHHghkqXUfzf6knlJUi2YRcJlszKVItu7zrG3Sr9QiSWLVSS424cPkdm9YiJASDUozmt0Jn4Ii4VeUClwuHbaDS_RxTbmHSRZLl2bl9kGGanRA3Az4nOlwblHFrPlV8nl6Fp3PLIp-vJ_4CtCNxDpBC8y-Usmt54-KS8ukBlYB8Ww3QGUI6E85HknxF9lvQAeS-WkX1B0EWh9eDFFjGFz5tvKSpT0DILdnkffg0fG8e8d0W4xsFpSSI_3WY4S6geE5YWSYYLVKRN8lwE5iv5ia_o3BY83UwOQ77j46kOjemjdorh5QjjkiuFUF2Kgmn3BPbl3a0UleMyrNg1MjA2QJJ87dTWEiWBcNMzQI8IB_p042ADJu_7mfM-KNx4xVW9T_icY7gWWfq6roW3BZ3LZNueRH0Dq0qwcjMS6c7hvf4so-jc7OhKsMK9X0Iu5AQfp4aFmwVvyDagxs4Q5zALSHS0qtECqZd100ih7ihMFFpybmT9L5RJAhnMuQ1iCr3R_MN-9oEHboL008Kuk3aSnesoGqcvq0efNBLMWChEh_7RaGXQF_wMZB_iq2x3Lyto_YFL8cCSNGBQ0tpFuF6CAwu6kZe9JXEkCvB1EZtR49lFuV9Ep23ov-R4TxFn7GCQKoL1lwy6TNJf1pPl4gZRW2RAmqO3IeYqcsnvu09yE_lLLOJ4z4X8dik0rJy1tNGQN6nq5kXqBBrcLTUfdRyHBSUQ4DWnEXhcn4_CxHs757I5uOth9AKvh813nEFDtWDOofDnGRCDThL1xlGDJwt8APxh4sxP0uTTuK91NpU5CRqpryNH4K98cVXssJR6-BrPGUjyafi4QYD4llUFm8IFBMRxJcmIWyRYwj00N6wjKDQFyk1__QD_0xHfbNTu_QEuvI0fhsFeTrZOtoBDKLHhgfXCvP3zoOVPu77cz0Y2MI2-9ahwCRNm7dt9xH4h_2kytqwJaz-bCNcxOFiwsqRbsFuHXzWC5nWLXPJ_KXslz4fTEAn6rGd0cNGKRZxScvEFNw5FE8j6uISvyM0YtLc5frS_j8Fp232wZRVTmpEIoQA0YuXX3Sjm1dtX1sEnCrNGGoY3FZstBXxrHzAGHynsee_6qTz9lpt3njk_DFjey5CV02YmfrA0zXgQe5CoL-la9j0VZvL7CHOZ_gIWPVHcTzipnnx6Vjjna3ZoplVKxn9lZ3knv-Mvx0tX-3zHJl1lPJpiCp97LEmcanTaecKTC3uTrvMgUMGJzGtTpaBEm3XqVJXV6xgSuSunhHrkKZ2i5UrJmuj9WTNenWjLkq3zDP9dqYiXAmOv1fBESVLdETd0qDkKPFfrsC9Mh0gOk7TXtXZWPzQ4SdFN-m_eg59Hhqez9ncQWCAfQkdB8qfyOvt4sujTYR4KZVHdOk4sXBoojw-ujaY4-C70XTazarf15w_D1RwHbt8sLWyO-WlwVAiV42IBsFTC6jpWTddbyFkKNp3zmf5-B5Rjj9sUh498J7MJjgkWG6IqmeFmVWvhYB84qwiEdOUF8jRR3iTe09lprzHNPAQlansqQMddj0lw_PlygA4kMN-Y-YfDrx3F3n8D_sA8z3HhYNZGttTsG-OVNjRyrCoXEMYnaMsCz_bU9AGInm3hD5r_rw8oAAGMaeBLeiTZz1uHbPwEftYoUno39d5BCimdicSz_Br_YAVNpkrLb_dTD79EbYNTXXZrHxG-1Z2rEkHiUPE0pf_3vGW-5TjXZZjPWvhzSJbuWRiBfd49EmmC-xvTwzbe-9TzXvekUkB81TcsebtJe4Z300wQtaOUAklReIkFhBQ26GLM9-NQdexG9K3mBd_bSFT1QRvvLhpIK1BTZ0iRiCsxcBvpJ5FeCtB331k5wh7f-sA2U3-e5asRFx0JPAzGJIVj6s-3u_1LZ6n0RMRztPtJLDV__W4Y2QDGhLbPS4EpiHBw0qK1biLQOTEmK32lRZaBrjUHG_fwAXuIR5ZeFpl9IRBIXBqtbLYk-Aety5SCatGtjpGyxubYW8inpZu8yPc3mAclIf7Mjmgb7V6DTKCAV72DEIc5JupRkG4BEI-JaztSGJhrXWCeRgq-HBg0yKm9zIh6PoD9YSZkBIw9gmJOTAcSKKZ_gAY6QY7Qq8iMjlnpKua1bmV2AR5rgw-81CG5pzQB4iXvUbIMguWRnWET-Xumx1T0hNwZURuD2QTgmt6G-j7fiZzd0bKuU0X5Mw5heJdgCIF5pQujP8yHy0Fr3coYVEdGXV8C9apuIsmTM9J9945EyWzfcgs25oDcrHZ--KVBv_S85Ydy84r4NPrSFjsF_KkZgoQDEzx3dK5ClpzPIttYHgIRi8zBxe-yT3g2MPLUE3QeEa47E7do8JjRfTN8_R8dN1tNeN00D_RVQrU-C4wJi-LjZ_ZttGC_duex_XRYYnDRWKoZi1e8Oj1tM5ad7x1SDFHbR8TicF9pp0vQD61_vn1E_Tzcp3vArUvFHgQlc6QpFQSD673FSd5lCghOv7w1UX--j_8uDuC63SqGq-zB0ePmL-cH-nUc6IRd-ornbxOZ1z3TsVax59R0r6rcs0I4PMS30Cyirqc1oyMjJfa7xP9JOqiV4w7FHfO-j6RnUY9xj1qRtOQblIh_.BWBHGaf1A5mySXAPq_BlOizEuzgMFQa50VgTHLFjvpw=</keystore>
         </signing-key>
       </signing-keys>
       <signature-verification-keys>
         <signature-verification-key>
           <id>default-signature-verification-key</id>
-          <keystore>data:application/pem;aes,v:S.bWVqWEZqUk5GNERWblVlaw==.i7OiFfsQ_E3UHOiKrXxNCw==.PmJM87SyxfQBYXZK8dVr05GA22iFRJF8vrJ1vQCHF-34ZOGc_F8GW5zQk4f8NeXwpuse7T5FDdjpalOL8hyAhIuVyE25pal-plxuYLhnbpZVfWQGZkwo67kWiaKuyb1PAR2d-CtFjxTziRB3FSaNbZwl7c7jqCoxsdbi-A3paqeKwg9O8MCVdE_frO7WLIZ2s9WVAjZACh48ILwmd5Pv5_24IKxUvh0o28pMjWHMetgs5HhfFtlu3_58xg2FU-vf3nLU8hJGWEn-mDA4O5iWxYltJQ0L-Vzk7T_1bq8DrMBkYvI1aHGr0cfeJ502eAdPLSeimsMhxLy21adOIVmMs-Bm8ocZLvntokCsTAw1T6NfxF2enTwPqY-i03S8__f8b2FX7vTov4cgAc-roUYdEgxyhwj--UrpT3tti4poP0J5kdp8loIVVEY9ritMsfTdufJszVX17lHcNnuQ5dGtxpgQMDALQ9P8mjsI5JWl8ZpaDwgbXamIa6IWJzPVN6gu_1J-WO9fPZ63xmIDQ4S_6b1BYKkWJcUdfBB96GKITt-uTiz32yrMiy7_pcROF9H48HGuDkvhJXUbwQmdjh86U1iqwXcA0yL5eWTUJQh-sI7jUpNSRnFE4CljD5fONnGgnKEAzKTw4BDbMEr-T7_w_EzHKipcRlSKHNsO9rSgGJ5Knl6PtcJmdT_NQgfbSHUJ1Hfd4dnPN5a6eNxXQldjT_3LYCtR8zYq57gmmM5dgQQ_V2ySSRZY52R1c925dB2hC9AYChio3JpQccJbEIjdCqhm7fG_PNgsSALeLSasNMv0b39yphr-qSedP254UW2fyoDNh_BJNFuPJ35KSn-mi0s1ISw5tT57n3mb2e9VI6-I26AvaxSNjkn5t7Rh56U9M_iiqZjLNuMm6fEytLCTHAxgXDhnVLCF4_jX0N5cXAn4Ito_nY9onynv1Kx3eh5LKc6Zhu8okRvLuzq0GbjlkjhpK1HbEwp7DRs8uMtIEEkAxRb7pMR-gUR1hxDIVQqPKR1AFo1y1k2d8Se5NfMVqK7TqMv4T5FxesUQf6pqJcESrKuIZ7RPQas-RASCSmWZxYaQFIhOqifZ2EdO5nYFozj9qaxGsya9WJH9EGixKLL7W6zd6aYMRgy_FCjJAj_Fn5Rrd4xReUkHOqPUyRA-aqvbblLmEb0g5eR2eTTyz8vN3deFyHgxmvPRzQ8Z_-M8q6RXeRGnLtJFyDryyf115SYx7jTCtDaWY3xFu8tb8PkkFa1y_UNqpIoBEpudO1rK6yda6KtgoF1USOSaQeZCPrvY2890snlXk8UTNs2E_d-N2owslpS8CXTK8Fidr5lgtNJhI85soznH1ZKrNbtPQ7l2CY8cPTTJUQM1MDou-LgDLe5XUd7oJRlwgdbfSusTHNDx9X0Ge3N0EpcVeQrIAgmdK7J3alCn5uAnbBSPb4Q88VsigfPE5a7ZDBnEwK44E0rEki52rTRMFwnkgCM6RxOst1pUQ6zvX0m9MsUEQhXTs4XAorFaUwcna7V-4gbnVySdPHJxbA3l89s6X6nKbp5ela_e1LG3fLYO0e0CHk1oMDle00FYdufwnl7aNIm-lxS6p5tLPeeLESqwEykGqFup1gPKfUKdy1WOUCawjtIAvABAo9IoiCwFiD6UzqjFdD84Z8Pq_6obRvlWtfrIWw==.p8ae6ZpZEt6jrRTiPU_L2y_nD_KriWKl84u9PQI_1rA=</keystore>
+          <keystore>data:application/pem;aes,v:S.YTRsbGk1ZFRBajIwcWM2UA==.cMNxD7Mb8icE_TSa1HDjNA==.w23Pgpt4g8jLdGpGtXqEYO4qYIhaDSjMKv4qSbuKR32JQhivcs_uc1iWHvebVmAUNIzLeJ511bZkJha9omVAM8xOI9xrijU_Sf32Tuui8TGVYJnrTSQVa6lL1vWWYYvWJLCn9YW27vQDD6rSBtSqPrBa2mndmRqEWj-yDtnutPAh9dtQzkszrlZs6HS4PHevqiSoue6_ULodk7C0Xoc0pvi-_fUEFQjTJwas0L3VJ1iEeCwyaQ7ZBPDOTUC1tSDlaX0Agz1URfP4eOporohjjtVcLjirlzrlF6fWBJ5CZfddKc0AsOTMLxd8ZjPwgsxeD_icd53EN-In2E1ftEWlNegUhtk_vqoRGUUL0xGJ3UdJNH_p9optDizw8LGDe474LfULsVMORyXTEqOJLn-c_Y_YH9R1Xs58vEnqXCeq6y5C0PVrzb6EiW65Gkmei51W3SQoV-LH2CwGdltknydrnLDyQiDdHFxdtU3KEOKDPwCN8mKZNMdEr2KFyCufpiKX3vcO6-xgybjpRVLx2TL4Uu-7LfRjClSZgzG3IYiYbv-DGTdkvU-V0RAXKmN6ePOR5sS2P2sqCW5UhM42lFjL4557Jyvmezok4kxf0WymcDws6DKL1GToXIm8rPeL8w11xL-gli7DppejoamlpIqJFzb93Flx9dRfvIJYyMu93S8PR-GMu4GLCRMbRh7nYsmO_jZzIFuSFVm1cneyrLPFn0d5zfKAwjd3logwJnSOvYSV2xqY6UhOg465pDGrpQ0MoMVnOFBko6lU9gcy6iuwpXfkw1OZtJCDhT82b3tLgvS1mnYB8qioqGSzgSmFfdZySg7suQ-7B14qrKZwPwiPePrBD-SOriHY89rVjeey4ydlXZl_K76mZQS7vinpOAdkETe8LUTSqd-wEVhpZW0pVe0Xgx0NGGEZYeRdyUothpyr-Y7hpUMmAseDkEmFCzjJnUpbSRwzUT-MJpOHvJUcTwGoMzORa4MgypspexwsssWECV6TH_ak7y8a4ZqmlkxwacJ5fK-j0kcZrNuWpv0vcS9RtllNdPSJy6x02kYFQi4PhUL6jD74zNf424ke0qSHoIo2mKYticAIqaP8TWtwPFQUuXQef-f2Lk0ZX4EbpWZTDpzeuMOIUcz_kGcxSSmRublGWeqotmJTW54ZDWXeRWS1G-1o6HbxgRmlZqqquj8BfXKZiiSrvtXfpAVvyq1Qqj0QJ1ToBXMd_ccKZO0-VZ6rqzqNAuiMLIh65EJuKHSFzAR7C-H4M4DdsPtYtT5yZgHFEBQN4Kti4ajkS5MzxLcIDoaxLPZLrgBy39zbMvGjQ2JkbGoOv-CFcbPdgQwm2-MAZCli66mRenwRrnI7p3GKjSizvs6DzGsqpX03Y17ERZw9L6RoKDJXGN-Z9HPeQ3uTCT8M1GFTfu4twOzbJxyrpGI9NdM2HA2RyWiR5zfyL3OKr3mwlaRVsoZS37dS0KW4VXomWb8Dc_wJMWuxFD2bGsWnHBNVIlKkek1y4dPZzAacFMfqOAZn0PBJfh7A6h2XjVwGmumT9Kz6u4h0MO1_0laUNLTGkRnDUPyjt7Xpc86tRwOgvtEatKV4tduz13QD_mg1e0HB06rbZYGW7QAVOrjJP6HTIV2dFAG_tkutQFSc8Xs_50tSJWpQn4c84zjLZcYdibHpOmSejkGoEw==.CslH2Vtz4Zi2DHxonR3AOEo9Xp4tpbmJnt1V4ECWNUA=</keystore>
         </signature-verification-key>
       </signature-verification-keys>
     </crypto>
@@ -447,7 +492,13 @@
     </caching-services>
   </facilities>
   <processing xmlns="https://curity.se/ns/conf/base">
-    <license-key></license-key>
+    <license-key>eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJDdXJpdHkgQUIiLCJzdWIiOiJDdXJpdHkgRGV2ZWxvcG1lbnQiLCJJZCI6IkVDeVJ6V0cxc1BGT1FkZ2c3TFFxazdDSWJWTE1UTk04IiwiUHJvZHVjdCI6IklkZW50aXR5IFNlcnZlciIsIlZlcnNpb24iOiI0LjAiLCJGZWF0dXJlIjoiYXV0aG4sIG9hdXRoLCB1c2VyLW1hbmFnZW1lbnQsIHBsdWdpbnMiLCJUaWVyIjoiU3Vic2NyaXB0aW9uIiwiR3JhY2UgUGVyaW9kIjoiNDUiLCJJc3N1ZSBEYXRlIjoiMjAyMC0xMS0yNyIsIkV4cGlyYXRpb24gRGF0ZSI6IjIwMjEtMTEtMjciLCJFZGl0aW9uIjoiRW50ZXJwcmlzZSIsIkdyb3VwcyI6IjMiLCJFbnZpcm9ubWVudCI6IlRlc3RpbmcgQ3VyaXR5IERldiIsIlR5cGUiOiJOb24tUHJvZHVjdGlvbiIsIkZlYXR1cmVzIjpbeyJmZWF0dXJlIjoicHJvZmlsZXMiLCJyZXN0cmljdGlvbnMiOlsiYXV0aDphdXRoZW50aWNhdGlvbi1zZXJ2aWNlIiwiYXM6b2F1dGgtc2VydmljZSIsInVtOnVzZXItbWFuYWdlbWVudC1zZXJ2aWNlIl19LHsiZmVhdHVyZSI6ImF1dGhlbnRpY2F0b3JzIiwicmVzdHJpY3Rpb25zIjpbXX0seyJmZWF0dXJlIjoiZGF0YS1zb3VyY2VzIiwicmVzdHJpY3Rpb25zIjpbXX0seyJmZWF0dXJlIjoiYWxhcm1zIiwicmVzdHJpY3Rpb25zIjpbXX0seyJmZWF0dXJlIjoiZXZlbnQtbGlzdGVuZXJzIiwicmVzdHJpY3Rpb25zIjpbXX0seyJmZWF0dXJlIjoiYWN0aW9ucyIsInJlc3RyaWN0aW9ucyI6W119LHsiZmVhdHVyZSI6ImNsYWltcy1wcm92aWRlcnMiLCJyZXN0cmljdGlvbnMiOltdfSx7ImZlYXR1cmUiOiJtZXRyaWNzIiwicmVzdHJpY3Rpb25zIjpbXX0seyJmZWF0dXJlIjoiY2x1c3RlciIsInJlc3RyaWN0aW9ucyI6W119LHsiZmVhdHVyZSI6ImhhYXBpIiwicmVzdHJpY3Rpb25zIjpbXX0seyJmZWF0dXJlIjoiZGFzaGJvYXJkIiwicmVzdHJpY3Rpb25zIjpbXX0seyJmZWF0dXJlIjoiY3J5cHRvIiwicmVzdHJpY3Rpb25zIjpbImhzbSJdfV0sImlhdCI6MTYwNjQzNTIwMCwibmJmIjoxNjA2NDM1MjAwLCJleHAiOjE2Mzc5NzEyMDB9.qhIgyB4NXDDuWCliTJolsaKvsME2HifLkfAMQ1Do44k-znpGjUiPahp24L4DH7rcbfPv-H5b-Z8EJhNoD8VPNeIu2jI21nIIdGhD_TXceWqBNMWGjipFDs02HrtI_fByLTfY1OE_wiA-bJhSV5ziswApolVBv0A0HXlmhfIRI6Wb6tmX36qmJzHP4sCHnDi2ZR-h1HALmim59ko5XDAx8fE-LywbN3-0ONIfAkSM2amIoK3l2x3k0AimQozapiSm_fQL2eb7kmmRsYwkdJx5qZsfFjK6osKe1gpQm0sYrEEghNtZB74FRtPV5C4DtLgFVtEkjcNyUxfyo_Sa-kt2hA</license-key>
+    <procedures>
+      <transformation-procedure>
+        <id>Set-Zone-Procedure</id>
+        <script>LyoqCiAqIEEgcmVhbCB1c2UgY2FzZSBtaWdodCBsb29rIHVwIGEgZ2xvYmFsIHpvbmUgdG8gdXNlciBtYXBwaW5nCiAqLwpmdW5jdGlvbiByZXN1bHQodHJhbnNmb3JtYXRpb25Db250ZXh0KSB7CiAgICB2YXIgYXR0cmlidXRlcyA9IHRyYW5zZm9ybWF0aW9uQ29udGV4dC5hdHRyaWJ1dGVNYXA7CiAgICBpZiAoYXR0cmlidXRlcy5zdWJqZWN0ID09ICJ0ZXN0dXNlci5ldSIpIHsKICAgICAgICBhdHRyaWJ1dGVzLnpvbmUgPSAiZXUiOwogICAgfSBlbHNlIHsKICAgICAgICBhdHRyaWJ1dGVzLnpvbmUgPSAidXMiOwogICAgfQogICAgcmV0dXJuIGF0dHJpYnV0ZXM7Cn0=</script>
+      </transformation-procedure>
+    </procedures>
     <account-managers>
       <account-manager>
         <id>default-account-manager</id>

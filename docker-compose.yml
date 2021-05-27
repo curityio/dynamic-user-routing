@@ -49,7 +49,7 @@ services:
   # Backed up user accounts for the Europe instance of the Curity Identity Server
   # Sign in with username=testuser.eu and password=Password1
   #
-  curity_eu_data:
+  data_eu:
     image: postgres:13.2
     hostname: postgres-eu
     volumes:
@@ -63,7 +63,7 @@ services:
   # Backed up user accounts for the US instance of the Curity Identity Server
   # Sign in with username=testuser.us and password=Password1
   #
-  curity_us_data:
+  data_us:
     image: postgres:13.2
     hostname: postgres-us
     volumes:
