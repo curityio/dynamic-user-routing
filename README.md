@@ -16,8 +16,8 @@ The NGINX external URL will be called from OAuth Tools, to enable testing.
 
 You can also login to the admin UI via the following URLs, with user `admin` and password `Password1`:
 
-| Component | Base URL | URL Type |
-| --------- | -------- | -------- |
+| Component | Base URL |
+| --------- | -------- |
 | Curity Europe Admin | https://localhost:6749/admin |
 | Curity USA Admin | https://localhost:6750/admin |
 
