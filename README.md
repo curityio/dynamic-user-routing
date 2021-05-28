@@ -24,7 +24,7 @@ You can also login to the admin UI via the following URLs, with user `admin` and
 ## NGROK Setup
 
 Map port 80 to your NGROK domain, similar to the following.\
-Do a search on this repo's files to replace the value with your own external facing URL for the reverse proxy:
+Do a search on this repo's files to replace `curity-garcher` with your own domain:
 
 ```yaml
 console_ui: false
@@ -33,12 +33,12 @@ tunnels:
     curity:
         proto: http
         addr: 80
-        hostname: curity-garcher.eu.ngrok.io
+        hostname: yourdomain.ngrok.io
 ```
 
 ## Deploy the System
 
-Then run the following script to deploy NGINX and Curity containers for EU and US regions:
+Then run the following script to deploy NGINX and Curity docker containers for EU and US regions:
 
 - ./run.sh
 
@@ -60,11 +60,11 @@ Run a Code Flow login for this client, then redeem the code for tokens:
 - Verify from logs that you are being routed to the correct Curity instance
 
 OAuth tools shows that Authorization codes and Access Tokens are Heart Tokens.\
-These are confidential JWTs that allow middleware such as gateways to read the zone claim.
+These are confidential JWTs that allow gateways to route based on the zone claim.
 
 ## View User Data
 
-View user data for a region via commands such as these:
+View user data for the EU or US region with the following type of command:
 
 - export USERDATA_EU_CONTAINER_ID=$(docker container ls | grep data_eu | awk '{print $1}')
 - docker exec -it $USERDATA_EU_CONTAINER_ID bash
