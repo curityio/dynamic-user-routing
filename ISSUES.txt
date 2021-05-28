@@ -7,10 +7,10 @@ DATA SOURCES
 ------------
 The most natural option is for each region to have a single independent default data source.\
 Multi region data sources introduce reliability problems when there is no zone value.\
-This also ensures that a US instance cannot possibly write data to an EU database.
+Customers will want to ensute that a US instance cannot possibly write data to an EU database.
 
 SWITCHING BETWEEN ZONES
 -----------------------
-This does not seem to work reliably if you log in via OAuth tools.\
+This does not seem to work totally reliably if you log in via OAuth tools.\
 Login as user `testuser.eu` and then login as user `testuser.us`.\
-This fails with an error and nothing in logs, then works after a retry.
+This fails, with nothing written to logs, then works after a retry.
