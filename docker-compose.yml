@@ -14,7 +14,7 @@ services:
     - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
 
   #
-  # This Curity instance receives requests inside the cluster with a base URL of http://internal-curity-eu:8443
+  # This Curity instance receives requests inside the cluster with a base URL of http://internal-curity-eu:8443/oauth/v2
   # It can be administered at https://localhost:6749/admin
   #
   curity_eu:
@@ -28,22 +28,24 @@ services:
     - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
     - PASSWORD=Password1
+    - SERVICE_ROLE=Europe
 
   #
-  # This Curity instance receives requests inside the cluster with a base URL of http://internal-curity-us:8443/oauth/v2
+  # This Curity instance receives requests inside the cluster with a base URL of http://internal-curity-us:8444/oauth/v2
   # It can be administered at https://localhost:6750/admin
   #
   curity_us:
     image: curity.azurecr.io/curity/idsvr:6.2.2
     hostname: internal-curity-us
     ports:
-    - 6750:6749
+      - 6750:6749
     volumes:
     - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
     - ./idsvr/config-backup-us.xml:/opt/idsvr/etc/init/config.xml
     - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
     - PASSWORD=Password1
+    - SERVICE_ROLE=USA
 
   #
   # Backed up user accounts for the Europe instance of the Curity Identity Server

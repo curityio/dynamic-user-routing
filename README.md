@@ -54,32 +54,19 @@ Browse to https://oauth.tools and add an environment from the below URL:
 
 Run a Code Flow login for this client, then redeem the code for tokens:
 
-- Client ID: web-client
+- Client ID: tools-client
 - Client Secret: Password1
 - Sign in as 'testuser.eu' or 'testuser.us' with password 'Password1'
 - Verify from logs that you are being routed to the correct Curity instance
 
-Authorization codes and tokens are heart tokens, which are confidential JWTs, and contain the zone claim.
+OAuth tools shows that Authorization codes and Access Tokens are Heart Tokens.\
+These are confidential JWTs that allow middleware such as gateways to read the zone claim.
 
 ## View User Data
 
 View user data for a region via commands such as these:
 
-- export USERDATA_EU_CONTAINER_ID=$(docker container ls | grep curity_eu_data | awk '{print $1}')
+- export USERDATA_EU_CONTAINER_ID=$(docker container ls | grep data_eu | awk '{print $1}')
 - docker exec -it $USERDATA_EU_CONTAINER_ID bash
 - export PGPASSWORD=Password1 && psql -p 5432 -d idsvr -U postgres
 - select * from accounts;
-
-## System Settings
-
-- System / Zones is assigned a fixed value of either eu or us
-
-## Authentication Settings
-
-- A custom claim of Zone has been added and assigned the value eu or us
-- The Zone claim is included in the openid scope
-- The Claims Mapper adds the Zone claim to wrapper tokens
-
-## Token Settings
-
-- Under Token Service / Token Issuers select 'Use Wrapped Opaque Tokens'

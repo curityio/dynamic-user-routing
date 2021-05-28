@@ -1,10 +1,16 @@
-1. Error when running Set-Zone-Procedure
+SERVICE ROLES
+-------------
+There seems to be a dependency on every node knowing the service role for every possible zone value.\
+Without this there are cryptic errors after the zone transfer action, with no useful logs.
 
-   Cookie decryption error or dropped cookie?
-   - se.curity.identityserver.web.cookies.EncryptedCookie
-   - The cookie with name _authnSSO.af9c714d6b4d8583159c783508884ebe4d67a156 could not be decrypted:
-   - se.curity.identityserver.crypto.CryptoException: Could not decrypt ciphertext.
+DATA SOURCES
+------------
+The most natural option is for each region to have a single independent default data source.\
+Multi region data sources introduce reliability problems when there is no zone value.\
+This also ensures that a US instance cannot possibly write data to an EU database.
 
-   Could be related to proxy headers in nginx.conf
-   The whitelisted internal-nginx host name may not be recognised
-   Is X-Forwarded-For relevant?
+SWITCHING BETWEEN ZONES
+-----------------------
+This does not seem to work reliably if you log in via OAuth tools.\
+Login as user `testuser.eu` and then login as user `testuser.us`.\
+This fails with an error and nothing in logs, then works after a retry.
