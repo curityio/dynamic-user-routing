@@ -1,5 +1,4 @@
 1. Error when running Set-Zone-Procedure
-   OK if actions are switched around
 
    Cookie decryption error or dropped cookie?
    - se.curity.identityserver.web.cookies.EncryptedCookie

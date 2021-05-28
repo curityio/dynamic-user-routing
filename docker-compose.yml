@@ -13,23 +13,12 @@ services:
     volumes:
     - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
 
-#
-  # Our customized NGINX OpenResty reverse proxy uses an external base URL of http://localhost
-  #
-  openresty:
-    image: custom_openresty:1.19.3.1-8-bionic
-    hostname: internal-nginx
-    ports:
-    - 80:80
-    volumes:
-    - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
-
   #
   # This Curity instance receives requests inside the cluster with a base URL of http://internal-curity-eu:8443
   # It can be administered at https://localhost:6749/admin
   #
   curity_eu:
-    image: curity.azurecr.io/curity/idsvr:6.2.0
+    image: curity.azurecr.io/curity/idsvr:6.2.2
     hostname: internal-curity-eu
     ports:
     - 6749:6749
@@ -45,7 +34,7 @@ services:
   # It can be administered at https://localhost:6750/admin
   #
   curity_us:
-    image: curity.azurecr.io/curity/idsvr:6.2.0
+    image: curity.azurecr.io/curity/idsvr:6.2.2
     hostname: internal-curity-us
     ports:
     - 6750:6749
