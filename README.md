@@ -50,7 +50,7 @@ Then run the following command to view logs in three separate terminals:
 
 Browse to https://oauth.tools and add an environment from the below URL:
 
-- https://curity-garcher.eu.ngrok.io/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+- http://curity-garcher.eu.ngrok.io/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 
 Run a Code Flow login for this client, then redeem the code for tokens:
 

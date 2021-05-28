@@ -2,7 +2,7 @@
   <environments xmlns="https://curity.se/ns/conf/base">
     <environment>
       <name>curity.us</name>
-      <base-url>https://curity-garcher.eu.ngrok.io</base-url>
+      <base-url>http://curity-garcher.eu.ngrok.io</base-url>
       <white-listed-proxies>
         <proxy>internal-nginx</proxy>
       </white-listed-proxies>

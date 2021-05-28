@@ -11,7 +11,7 @@ then
 fi
 
 #
-# Run NGINX in front of the Curity Europe / USA instances
+# Run NGINX in front of the Curity instances for Europe and USA
 #
 docker-compose up --force-recreate
 if [ $? -ne 0 ];
