@@ -24,7 +24,7 @@ You can also login to the admin UI via the following URLs, with user `admin` and
 ## NGROK Setup
 
 Map port 80 to your NGROK domain, similar to the following.\
-Do a search on this repo's files to replace `curity-garcher` with your own domain:
+Do a search on this repo's files to replace `curity-demo` with your own domain:
 
 ```yaml
 console_ui: false
