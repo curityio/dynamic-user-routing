@@ -10,7 +10,7 @@ The NGINX external URL will be called from OAuth Tools, to enable testing.
 
 | Component | Base URL | URL Type |
 | --------- | -------- | -------- |
-| NGINX OpenResty | https://curity-garcher.eu.ngrok.io | External |
+| NGINX OpenResty | https://curity-demo.ngrok.io | External |
 | Curity Europe Runtime | http://internal-curity-eu:8443 | Internal |
 | Curity USA Runtime | http://internal-curity-us:8443 | Internal |
 
@@ -50,7 +50,7 @@ Then run the following command to view logs in three separate terminals:
 
 Browse to https://oauth.tools and add an environment from the below URL:
 
-- http://curity-garcher.eu.ngrok.io/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+- http://curity-demo.ngrok.io/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 
 Run a Code Flow login for this client, then redeem the code for tokens:
 
