@@ -24,7 +24,7 @@ services:
     - 6749:6749
     volumes:
     - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
-    - ./idsvr/config-backup-eu.xml:/opt/idsvr/etc/init/config.xml
+    - ./idsvr/config-backup.xml:/opt/idsvr/etc/init/config.xml
     - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
     - PASSWORD=Password1
@@ -41,7 +41,7 @@ services:
       - 6750:6749
     volumes:
     - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
-    - ./idsvr/config-backup-us.xml:/opt/idsvr/etc/init/config.xml
+    - ./idsvr/config-backup.xml:/opt/idsvr/etc/init/config.xml
     - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
     - PASSWORD=Password1

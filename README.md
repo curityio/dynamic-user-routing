@@ -1,25 +1,11 @@
 # User Regional Routing
 
-Demonstrates a technique for routing OAuth requests for users to their home region.\
+Routing OAuth requests to a user's home region, in a global deployment.\
 This ensures that Personally Identifiable Information (PII) never gets stored in the wrong region.
 
-## Components
+## Prerequisites
 
-We will run the Curity Identity Server via a reverse proxy, with these base URLs.\
-The NGINX external URL will be called from OAuth Tools, to enable testing.
-
-| Component | Base URL | URL Type |
-| --------- | -------- | -------- |
-| NGINX OpenResty | https://curity-demo.ngrok.io | External |
-| Curity Europe Runtime | http://internal-curity-eu:8443 | Internal |
-| Curity USA Runtime | http://internal-curity-us:8443 | Internal |
-
-You can also login to the admin UI via the following URLs, with user `admin` and password `Password1`:
-
-| Component | Base URL |
-| --------- | -------- |
-| Curity Europe Admin | https://localhost:6749/admin |
-| Curity USA Admin | https://localhost:6750/admin |
+Install Docker Desktop and ngrok.
 
 ## NGROK Setup
 
@@ -33,7 +19,7 @@ tunnels:
     curity:
         proto: http
         addr: 80
-        hostname: yourdomain.ngrok.io
+        hostname: curity-demo.ngrok.io
 ```
 
 ## Deploy the System
@@ -52,7 +38,7 @@ Browse to https://oauth.tools and add an environment from the below URL:
 
 - http://curity-demo.ngrok.io/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 
-Run a Code Flow login for this client, then redeem the code for tokens:
+Run a Code Flow login for the following client, then redeem the code for tokens:
 
 - Client ID: tools-client
 - Client Secret: Password1
@@ -60,7 +46,7 @@ Run a Code Flow login for this client, then redeem the code for tokens:
 - Verify from logs that you are being routed to the correct Curity instance
 
 OAuth tools shows that Authorization codes and Access Tokens are Heart Tokens.\
-These are confidential JWTs that allow gateways to route based on the zone claim.
+These are confidential JWTs that allow gateways to route requests based on the zone claim.
 
 ## View User Data
 
@@ -70,3 +56,20 @@ View user data for the EU or US region with the following type of command:
 - docker exec -it $USERDATA_EU_CONTAINER_ID bash
 - export PGPASSWORD=Password1 && psql -p 5432 -d idsvr -U postgres
 - select * from accounts;
+
+## URLs
+
+The Curity Identity Server instances are accessed via the reverse proxy:
+
+| Component | Base URL | URL Type |
+| --------- | -------- | -------- |
+| NGINX Reverse Proxy | https://curity-demo.ngrok.io | External |
+| Curity Europe Runtime | http://internal-curity-eu:8443 | Internal |
+| Curity USA Runtime | http://internal-curity-us:8443 | Internal |
+
+Login to the Admin UI via the following URLs, with user `admin` and password `Password1`:
+
+| Component | Base URL |
+| --------- | -------- |
+| Curity Europe Admin | https://localhost:6749/admin |`
+| Curity USA Admin | https://localhost:6750/admin |
