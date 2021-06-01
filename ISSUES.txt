@@ -1,16 +1,25 @@
-SERVICE ROLES
--------------
-There seems to be a dependency on every node knowing the service role for every possible zone value.\
-Without this there are cryptic errors after the zone transfer action, with no useful logs.
+MULTI REGION DATA SOURCE
+------------------------
+Multi region data sources do not seem to save correctly, due to a missing plugin error.\
+Maybe I am missing a piece of the puzzle here.
 
-DATA SOURCES
-------------
-The most natural option is for each region to have a single independent default data source.\
-Multi region data sources introduce reliability problems when there is no zone value.\
-Customers will want to ensute that a US instance cannot possibly write data to an EU database.
+ZONE TRANSFER ACTION
+--------------------
+This doesn't seem to be executing currently, though previously I could see it in Charles Proxy.\
+This resulted in a zone cookie being written.
 
 SWITCHING BETWEEN ZONES
 -----------------------
-This does not seem to work totally reliably if you log in via OAuth tools.\
-Login as user `testuser.eu` and then login as user `testuser.us`.\
-This fails, with nothing written to logs, then works after a retry.
+Previously I used two different config.xml files for Europe and USA.\
+In OAuth Tools, I logged in as user `testuser.eu` and then login as user `testuser.us`.\
+This failed, with nothing written to logs, then worked after a retry.
+
+DROPPED COOKIES?
+----------------
+I would expect multiple login attempts from OAuth tools to use the SSO cookie.\
+However, I get prompted to login every time and would like to understand this better.
+
+ZONES AND SERVICE ROLE ERROR REPORTING
+--------------------------------------
+When the zone is not associated to a service role an authentication error occurs.\
+However, nothing written to logs, and an improved log message would be useful.

@@ -3,18 +3,16 @@
 Routing OAuth requests to a user's home region, in a global deployment.\
 This ensures that Personally Identifiable Information (PII) never gets stored in the wrong region.
 
-## Prerequisites
+## Install Prerequisites
 
-Install Docker Desktop and ngrok.
+Install Docker Desktop and ngrok, then copy a valid `license.json` file into the idsvr folder.
 
-## NGROK Setup
+## Configure NGROK
 
 Map port 80 to your NGROK domain, similar to the following.\
 Do a search on this repo's files to replace `curity-demo` with your own domain:
 
 ```yaml
-console_ui: false
-region: eu
 tunnels:
     curity:
         proto: http
@@ -48,7 +46,7 @@ Run a Code Flow login for the following client, then redeem the code for tokens:
 OAuth tools shows that Authorization codes and Access Tokens are Heart Tokens.\
 These are confidential JWTs that allow gateways to route requests based on the zone claim.
 
-## View User Data
+## Query User Data
 
 View user data for the EU or US region with the following type of command:
 
@@ -57,19 +55,20 @@ View user data for the EU or US region with the following type of command:
 - export PGPASSWORD=Password1 && psql -p 5432 -d idsvr -U postgres
 - select * from accounts;
 
-## URLs
+## Understand URLs
 
-The Curity Identity Server instances are accessed via the reverse proxy:
+The Curity Identity Server runtime nodes are accessed via these URLs:
 
 | Component | Base URL | URL Type |
 | --------- | -------- | -------- |
-| NGINX Reverse Proxy | https://curity-demo.ngrok.io | External |
+| NGINX Reverse Proxy | http://curity-demo.ngrok.io | External |
 | Curity Europe Runtime | http://internal-curity-eu:8443 | Internal |
 | Curity USA Runtime | http://internal-curity-us:8443 | Internal |
 
-Login to the Admin UI via the following URLs, with user `admin` and password `Password1`:
+The system is administered via the following URLs, with user `admin` and password `Password1`.\
+After changes, download and replace this repository's config-backup.xml file.
 
 | Component | Base URL |
 | --------- | -------- |
-| Curity Europe Admin | https://localhost:6749/admin |`
+| Curity Europe Admin | https://localhost:6749/admin |
 | Curity USA Admin | https://localhost:6750/admin |
