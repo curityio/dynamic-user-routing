@@ -21,7 +21,7 @@ services:
 
   #
   # This Curity instance receives requests inside the cluster at the following type of URL:
-  # http://internal-curity-us:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+  # http://internal-curity-eu:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
   #
   curity_eu:
     image: curity.azurecr.io/curity/idsvr:6.2.2
@@ -54,7 +54,8 @@ services:
       - curity_admin
 
   #
-  # Our customized NGINX reverse proxy uses an external base URL of http://localhost
+  # Our customized NGINX reverse proxy is exposed to the host computer at a base URL of http://localhost
+  # We then use NGROK to expose NGINX to the internet so that it can be called from OAuth Tools
   #
   openresty:
     image: custom_openresty:1.19.3.1-8-bionic
@@ -68,7 +69,7 @@ services:
       - curity_us
 
   #
-  # The EU instance of the Curity Identity Server contains the user 'testuser.eu'
+  # The data for the EU instance of the Curity Identity Server contains the user 'testuser.eu'
   #
   data_eu:
     image: postgres:13.2
@@ -81,7 +82,7 @@ services:
       - POSTGRES_DB=idsvr
 
   #
-  # The US instance of the Curity Identity Server contains the user 'testuser.us'
+  # The data for the US instance of the Curity Identity Server contains the user 'testuser.us'
   #
   data_us:
     image: postgres:13.2
