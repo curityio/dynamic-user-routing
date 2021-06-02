@@ -1,8 +1,3 @@
-MULTI REGION DATA SOURCE
-------------------------
-Multi region data sources do not seem to save correctly, due to a missing plugin error.\
-Maybe I am missing a piece of the puzzle here.
-
 ZONE TRANSFER ACTION
 --------------------
 This doesn't seem to be executing currently, though previously I could see it in Charles Proxy.\
