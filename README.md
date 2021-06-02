@@ -1,6 +1,6 @@
 # User Regional Routing
 
-Routing OAuth requests to a user's home region, in a global deployment.\
+How to route OAuth requests to a user's home region, in a global deployment.\
 This ensures that Personally Identifiable Information (PII) never gets stored in the wrong region.
 
 ## Install Prerequisites
@@ -32,7 +32,7 @@ Then run the following command to view logs in three separate terminals:
 
 ## Test the System
 
-Browse to https://oauth.tools and add an environment from the below URL:
+Browse to https://oauth.tools and add an environment from the below metadata URL:
 
 - http://curity-demo.ngrok.io/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 
@@ -43,7 +43,7 @@ Run a Code Flow login for the following client, then redeem the code for tokens:
 - Sign in as 'testuser.eu' or 'testuser.us' with password 'Password1'
 - Verify from logs that you are being routed to the correct Curity instance
 
-OAuth tools shows that Authorization codes and Access Tokens are Heart Tokens.\
+OAuth tools shows that Authorization codes and Access Tokens are Wrapped Tokens.\
 These are confidential JWTs that allow gateways to route requests based on the zone claim.
 
 ## Query User Data
@@ -57,18 +57,12 @@ View user data for the EU or US region with the following type of command:
 
 ## Understand URLs
 
-The Curity Identity Server runtime nodes are accessed via these URLs:
+The Curity Identity Server runtime nodes are accessed via the NGINX reverse proxy.\
+Administer the system via the admin node, and login as user `admin` and password `Password1`.
 
 | Component | Base URL | URL Type |
 | --------- | -------- | -------- |
 | NGINX Reverse Proxy | http://curity-demo.ngrok.io | External |
+| Curity Admin Node | https://localhost:6749/admin | External |
 | Curity Europe Runtime | http://internal-curity-eu:8443 | Internal |
 | Curity USA Runtime | http://internal-curity-us:8443 | Internal |
-
-The system is administered via the following URLs, with user `admin` and password `Password1`.\
-After changes, download and replace this repository's config-backup.xml file.
-
-| Component | Base URL |
-| --------- | -------- |
-| Curity Europe Admin | https://localhost:6749/admin |
-| Curity USA Admin | https://localhost:6750/admin |

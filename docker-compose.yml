@@ -3,74 +3,92 @@ version: '3.8'
 services:
 
   #
-  # Our customized NGINX OpenResty reverse proxy uses an external base URL of http://localhost
+  # This Curity admin node runs at https://localhost:6749/admin
+  #
+  curity_admin:
+    image: curity.azurecr.io/curity/idsvr:6.2.2
+    hostname: internal-curity-admin
+    ports:
+      - 6749:6749
+    volumes:
+      - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
+      - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
+      - ./idsvr/config-backup.xml:/opt/idsvr/etc/init/config.xml
+      - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
+    environment:
+      - PASSWORD=Password1
+      - SERVICE_ROLE=admin
+
+  #
+  # This Curity instance receives requests inside the cluster at the following type of URL:
+  # http://internal-curity-us:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+  #
+  curity_eu:
+    image: curity.azurecr.io/curity/idsvr:6.2.2
+    hostname: internal-curity-eu
+    volumes:
+      - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
+      - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
+      - ./idsvr/config-backup.xml:/opt/idsvr/etc/init/config.xml
+      - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
+    environment:
+      - SERVICE_ROLE=Europe
+    depends_on:
+      - curity_admin
+
+  #
+  # This Curity instance receives requests inside the cluster at the following type of URL:
+  # http://internal-curity-us:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+  #
+  curity_us:
+    image: curity.azurecr.io/curity/idsvr:6.2.2
+    hostname: internal-curity-us
+    volumes:
+      - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
+      - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
+      - ./idsvr/config-backup.xml:/opt/idsvr/etc/init/config.xml
+      - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
+    environment:
+      - SERVICE_ROLE=USA
+    depends_on:
+      - curity_admin
+
+  #
+  # Our customized NGINX reverse proxy uses an external base URL of http://localhost
   #
   openresty:
     image: custom_openresty:1.19.3.1-8-bionic
     hostname: internal-nginx
     ports:
-    - 80:80
+      - 80:80
     volumes:
-    - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+      - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+    depends_on:
+      - curity_eu
+      - curity_us
 
   #
-  # This Curity instance receives requests inside the cluster with a base URL of http://internal-curity-eu:8443/oauth/v2
-  # It can be administered at https://localhost:6749/admin
-  #
-  curity_eu:
-    image: curity.azurecr.io/curity/idsvr:6.2.2
-    hostname: internal-curity-eu
-    ports:
-    - 6749:6749
-    volumes:
-    - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
-    - ./idsvr/config-backup.xml:/opt/idsvr/etc/init/config.xml
-    - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
-    environment:
-    - PASSWORD=Password1
-    - SERVICE_ROLE=Europe
-
-  #
-  # This Curity instance receives requests inside the cluster with a base URL of http://internal-curity-us:8444/oauth/v2
-  # It can be administered at https://localhost:6750/admin
-  #
-  curity_us:
-    image: curity.azurecr.io/curity/idsvr:6.2.2
-    hostname: internal-curity-us
-    ports:
-      - 6750:6749
-    volumes:
-    - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
-    - ./idsvr/config-backup.xml:/opt/idsvr/etc/init/config.xml
-    - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
-    environment:
-    - PASSWORD=Password1
-    - SERVICE_ROLE=USA
-
-  #
-  # Backed up user accounts for the Europe instance of the Curity Identity Server
-  # Sign in with username=testuser.eu and password=Password1
+  # The EU instance of the Curity Identity Server contains the user 'testuser.eu'
   #
   data_eu:
     image: postgres:13.2
     hostname: postgres-eu
     volumes:
-    - ./idsvr/data-backup-eu.sql:/docker-entrypoint-initdb.d/data-backup-eu.sql
+      - ./idsvr/data-backup-eu.sql:/docker-entrypoint-initdb.d/data-backup-eu.sql
     environment:
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=Password1
-    - POSTGRES_DB=idsvr
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Password1
+      - POSTGRES_DB=idsvr
 
   #
-  # Backed up user accounts for the US instance of the Curity Identity Server
-  # Sign in with username=testuser.us and password=Password1
+  # The US instance of the Curity Identity Server contains the user 'testuser.us'
   #
   data_us:
     image: postgres:13.2
     hostname: postgres-us
     volumes:
-    - ./idsvr/data-backup-us.sql:/docker-entrypoint-initdb.d/data-backup-us.sql
+      - ./idsvr/data-backup-us.sql:/docker-entrypoint-initdb.d/data-backup-us.sql
     environment:
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=Password1
-    - POSTGRES_DB=idsvr
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Password1
+      - POSTGRES_DB=idsvr
