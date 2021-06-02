@@ -44,8 +44,8 @@ The login will begin in the EU region, then switch to the US region once the use
 - Sign in as 'testuser.eu' or 'testuser.us' with password 'Password1'
 - Verify from logs that you are being routed to the correct Curity instance
 
-OAuth tools shows that Authorization codes and Access Tokens are Wrapped Tokens.\
-These are confidential JWTs that allow gateways to route requests based on the zone claim.
+Authorization Codes, Access Tokens and Refresh Tokens are configured to use a Wrapped Token format.\
+These are confidential JWTs that allow reverse proxies to route requests based on the zone claim.
 
 ## Separated User Data
 
