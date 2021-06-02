@@ -7,10 +7,10 @@ This ensures that Personally Identifiable Information (PII) never gets stored in
 
 Install Docker Desktop and ngrok, then copy a valid `license.json` file into the idsvr folder.
 
-## Configure NGROK
+## Configure Internet Access
 
-Map port 80 to your NGROK domain, similar to the following.\
-Do a search on this repo's files to replace `curity-demo` with your own domain:
+Map port 80 to your ngrok domain, similar to the following.\
+Do a search on this repo's files and replace `curity-demo` with your own domain:
 
 ```yaml
 tunnels:
@@ -42,7 +42,7 @@ The login will begin in the EU region, then switch to the US region once the use
 - Client ID: tools-client
 - Client Secret: Password1
 - Sign in as 'testuser.eu' or 'testuser.us' with password 'Password1'
-- Verify from logs that you are being routed to the correct Curity instance
+- Verify from logs that you are routed to the expected Curity instance
 
 Authorization Codes, Access Tokens and Refresh Tokens are configured to use a Wrapped Token format.\
 These are confidential JWTs that allow reverse proxies to route requests based on the zone claim.
@@ -59,7 +59,7 @@ Query user data for the EU or US region with the following type of command:
 ## Curity URLs
 
 The Curity Identity Server runtime nodes are accessed via the NGINX reverse proxy.\
-Administer the system via the admin node, and login as user `admin` and password `Password1`.
+Administer the system via the admin node, signing in as user `admin` and password `Password1`.
 
 | Component | Base URL | URL Type |
 | --------- | -------- | -------- |
