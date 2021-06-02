@@ -26,7 +26,7 @@ Then run the following script to deploy NGINX and Curity docker containers for E
 
 - ./run.sh
 
-Then run the following command to view logs in three separate terminals:
+Then run the following command to view logs for each component in separate terminal windows:
 
 - ./logs.sh
 
@@ -36,7 +36,8 @@ Browse to https://oauth.tools and add an environment from the below metadata URL
 
 - http://curity-demo.ngrok.io/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 
-Run a Code Flow login for the following client, then redeem the code for tokens:
+Run a Code Flow login for the following client, then redeem the code for tokens.\
+The login will begin in the EU region, then switch to the US region once the user is identified.
 
 - Client ID: tools-client
 - Client Secret: Password1
@@ -46,16 +47,16 @@ Run a Code Flow login for the following client, then redeem the code for tokens:
 OAuth tools shows that Authorization codes and Access Tokens are Wrapped Tokens.\
 These are confidential JWTs that allow gateways to route requests based on the zone claim.
 
-## Query User Data
+## Separated User Data
 
-View user data for the EU or US region with the following type of command:
+Query user data for the EU or US region with the following type of command:
 
 - export USERDATA_EU_CONTAINER_ID=$(docker container ls | grep data_eu | awk '{print $1}')
 - docker exec -it $USERDATA_EU_CONTAINER_ID bash
 - export PGPASSWORD=Password1 && psql -p 5432 -d idsvr -U postgres
 - select * from accounts;
 
-## Understand URLs
+## Curity URLs
 
 The Curity Identity Server runtime nodes are accessed via the NGINX reverse proxy.\
 Administer the system via the admin node, and login as user `admin` and password `Password1`.
