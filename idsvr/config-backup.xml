@@ -21,17 +21,16 @@
           </default-zone>
           <zone>
             <id>eu</id>
-            <symmetric-key>5c2368addf85ceb7901121de2d5f1b5e3f1c2af9c0bd2525c8f6848e27efed49</symmetric-key>
           </zone>
           <zone>
             <id>us</id>
-            <symmetric-key>5c2368addf85ceb7901121de2d5f1b5e3f1c2af9c0bd2525c8f6848e27efed49</symmetric-key>
           </zone>
         </zones>
         <service-role>
           <id>Europe</id>
           <enabled>true</enabled>
           <zone>eu</zone>
+          <listening-port>8443</listening-port>
           <protocol>http</protocol>
           <endpoints>authentication-service-anonymous</endpoints>
           <endpoints>authentication-service-authentication</endpoints>

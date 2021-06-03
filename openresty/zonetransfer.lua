@@ -50,18 +50,18 @@ local function get_zone_from_cookie(cookie_name)
 end
 
 --
--- Try to get the name of the field containing the heart token
+-- Try to get the name of the field containing the wrapped token
 --
-local function get_heart_token_field(args)
+local function get_wrapped_token_field(args)
   
   if args['grant_type'] == 'authorization_code' then
     
-    -- The authorization code field is a heart token
+    -- The authorization code field is a wrapped token
     return 'code'
   
   elseif args['grant_type'] == 'refresh_token' then
 
-    -- The refresh token field is a heart token
+    -- The refresh token field is a wrapped token
     return 'refresh_token'
 
   elseif args['token'] and not args['state'] then
@@ -74,11 +74,11 @@ local function get_heart_token_field(args)
 end
 
 --
--- Load the heart token / JWT and look for a claim in the payload
+-- Load the wrapped token / JWT and look for a claim in the payload
 --
-local function get_zone_claim_value(heart_token, claim_name)
+local function get_zone_claim_value(wrapped_token, claim_name)
 
-  local jwt = jwt:load_jwt(heart_token)
+  local jwt = jwt:load_jwt(wrapped_token)
   if jwt.valid and jwt.payload[claim_name] then
     return jwt.payload.zone
   end
@@ -98,15 +98,15 @@ local function get_zone_from_form(claim_name)
   ngx.req.read_body()
   local args = ngx.req.get_post_args()
   
-  local heart_token_field = get_heart_token_field(args)
-  if heart_token_field then
+  local wrapped_token_field = get_wrapped_token_field(args)
+  if wrapped_token_field then
 
-    local jwt = args[heart_token_field]
+    local jwt = args[wrapped_token_field]
     if jwt then
 
       local zone = get_zone_claim_value(jwt, claim_name)
       if zone then
-        ngx.log(ngx.INFO, "*** Found zone '" .. zone .. "' in heart token")
+        ngx.log(ngx.INFO, "*** Found zone '" .. zone .. "' in wrapped token")
         return zone
       end
     end
