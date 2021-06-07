@@ -1,0 +1,15 @@
+_format_version: '2.1'
+_transform: true
+
+services:
+- name: curity
+  url: http://internal-curity-eu
+  routes:
+  - name: curity
+    paths:
+    - /
+  plugins:
+  - name: zone-transfer
+    config:
+      cookie_name: zone
+      claim-name: zone
