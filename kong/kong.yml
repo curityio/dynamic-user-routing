@@ -3,9 +3,9 @@ _transform: true
 
 services:
 - name: curity
-  url: http://internal-curity-eu
+  url: http://internal-curity-eu:8443
   routes:
-  - name: curity
+  - name: root
     paths:
     - /
   plugins:

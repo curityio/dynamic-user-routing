@@ -10,14 +10,14 @@ Install Docker Desktop and ngrok, then copy a valid `license.json` file into the
 ## Configure Internet Access
 
 Map port 80 to your ngrok domain, similar to the following.\
-Do a search on this repo's files and replace `curity-garcher.eu` with your own domain:
+Do a search on this repo's files and replace `curity-demo` with your own domain:
 
 ```yaml
 tunnels:
     curity:
         proto: http
         addr: 80
-        hostname: curity-garcher.eu.ngrok.io
+        hostname: curity-demo.ngrok.io
 ```
 
 ## Deploy the System
@@ -34,7 +34,7 @@ Then run the following command to view logs for each component in separate termi
 
 Browse to https://oauth.tools and add an environment from the below metadata URL:
 
-- http://curity-garcher.eu.ngrok.io/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+- http://curity-demo.ngrok.io/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 
 Run a Code Flow login for the following client, then redeem the code for tokens.\
 The login will begin in the EU region, then switch to the US region once the user is identified.
@@ -63,7 +63,7 @@ Administer the system via the admin node, signing in as user `admin` and passwor
 
 | Component | Base URL | URL Type |
 | --------- | -------- | -------- |
-| Reverse Proxy | http://curity-garcher.eu.ngrok.io | External |
+| Reverse Proxy | http://curity-demo.ngrok.io | External |
 | Curity Admin Node | https://localhost:6749/admin | External |
 | Curity Europe Runtime | http://internal-curity-eu:8443 | Internal |
 | Curity USA Runtime | http://internal-curity-us:8443 | Internal |

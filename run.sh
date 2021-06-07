@@ -25,7 +25,7 @@ fi
 # Run all Docker containers with nginx / openresty as the reverse proxy
 # Alternatively you can use openresty=0 to use Kong as the reverse proxy
 #
-docker-compose up --force-recreate --scale kong=0
+docker-compose up --force-recreate --scale openresty=0
 if [ $? -ne 0 ];
 then
   echo "Docker compose problem encountered"

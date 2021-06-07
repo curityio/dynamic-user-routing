@@ -6,36 +6,6 @@ local _M = {}
 local jwt = require 'resty.jwt'
 
 --
--- Ensure that the expected options have been received
---
-local function options_error(value)
-  ngx.log(ngx.ERR, "*** No option for '" .. value .. "' was supplied to the zone transfer plugin")
-end
-
---
--- Ensure that the expected options have been received
---
-local function verify_options(opts)
-
-  if not opts then
-    options_error('options object')
-    return false
-  end
-
-  if not opts.cookie_name then
-    options_error('cookie_name')
-    return false
-  end
-
-  if not opts.claim_name then
-    options_error('claim_name')
-    return false
-  end
-
-  return true
-end
-
---
 -- Read the zone from a front channel cookie
 --
 local function get_zone_from_cookie(cookie_name)
@@ -118,11 +88,7 @@ end
 --
 -- Get the zone value, depending on the OAuth message received
 --
-function _M.get_zone_value(opts)
-  
-  if not verify_options(opts) then
-    return nil
-  end
+function _M.run(config)
   
   local method = string.lower(ngx.var.request_method)
   if method == 'options' or method == 'head' then
@@ -130,16 +96,20 @@ function _M.get_zone_value(opts)
   end
 
   -- First see if we can find a value in the zone cookie
-  local zone = get_zone_from_cookie(opts.cookie_name)
+  local zone = get_zone_from_cookie(config.cookie_name)
 
   -- Otherwise, for POST messages look in the form body
   if zone == nil then
     if method == 'post' then
-      zone = get_zone_from_form(opts.claim_name)
+      zone = get_zone_from_form(config.claim_name)
     end
   end
 
-  return zone
+  -- Move this to the schema, which perhaps should have a map?
+  if zone then
+    ngx.log(ngx.INFO, "*** UPDATING HOST")
+    ngx.var.host = 'internal-curity-' .. zone
+  end
 end
 
 return _M

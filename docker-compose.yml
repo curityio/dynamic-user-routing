@@ -3,7 +3,7 @@ version: '3.8'
 services:
 
   #
-  # Include this component to deploy the system using NGINX as the reverse proxy
+  # Deploy this component to run the system using NGINX as the reverse proxy
   #
   openresty:
     image: custom_openresty:1.19.3.1-8-bionic
@@ -19,23 +19,24 @@ services:
       - curity_us
 
   #
-  # Alternatively deploy this component to deploy the system using Kong as the reverse proxy
+  # Alternatively deploy this component to run the system using Kong as the reverse proxy
   #
   kong:
     image: kong:2.4.1-alpine
     hostname: internal-kong
     ports:
-      - 8080:80
+      - 80:8080
     networks:
       - default
     volumes:
       - ./kong/kong.yml:/usr/local/kong/declarative/kong.yml
-#        ./kong/zone-transfer-plugin:/usr/local/share/lua/5.1/kong/plugins/zone-transfer-plugin
+      - ./kong/zone-transfer-plugin:/usr/local/share/lua/5.1/kong/plugins/zone-transfer
     environment:
       KONG_DATABASE: 'off'
       KONG_DECLARATIVE_CONFIG: '/usr/local/kong/declarative/kong.yml'
       KONG_PROXY_LISTEN: '0.0.0.0:8080'
       KONG_ADMIN_LISTEN: '0.0.0.0:8081'
+      KONG_PLUGINS: 'bundled,zone-transfer'
     depends_on:
       - curity_eu
       - curity_us
