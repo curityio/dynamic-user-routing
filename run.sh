@@ -1,13 +1,36 @@
 #!/bin/bash
 
 #
-# Build the custom Docker image for OpenResty
+# Get the command line parameter that specifies which gateway to use
 #
-docker build --no-cache -f ./openresty/Dockerfile -t custom_openresty:1.19.3.1-8-bionic .
-if [ $? -ne 0 ];
-then
-  echo "Docker Openresty build problem encountered"
+GATEWAY=$1
+if [ "$GATEWAY" != "nginx" ] && [ "$GATEWAY" != "kong" ]; then
+  echo "Please specify a gateway as a command line argument, eg './run.sh nginx'"
   exit 1
+fi
+
+#
+# Build the custom Docker image for NGINX
+#
+if [ "$GATEWAY" == "nginx" ]; then
+  docker build --no-cache -f ./openresty/Dockerfile -t custom_openresty:1.19.3.1-8-bionic .
+  if [ $? -ne 0 ];
+  then
+    echo "Docker NGINX build problem encountered"
+    exit 1
+  fi
+fi
+
+#
+# Build the custom Docker image for Kong
+#
+if [ "$GATEWAY" == "kong" ]; then
+  docker build --no-cache -f ./kong/Dockerfile -t custom_kong:2.4.1 .
+  if [ $? -ne 0 ];
+  then
+    echo "Docker Kong build problem encountered"
+    exit 1
+  fi
 fi
 
 #
@@ -22,12 +45,20 @@ then
 fi
 
 #
-# Run all Docker containers with nginx / openresty as the reverse proxy
-# Alternatively you can use openresty=0 to use Kong as the reverse proxy
+# Run all Docker containers
 #
-docker-compose up --force-recreate --scale openresty=0
+if [ "$GATEWAY" == "nginx" ]; then
+
+  # When running NGINX we run zero instances of Kong
+  docker-compose up --force-recreate --scale kong=0
+
+elif [ "$GATEWAY" == "kong" ]; then
+
+  # When running Kong we run zero instances of NGINX
+  docker-compose up --force-recreate --scale openresty=0
+fi
 if [ $? -ne 0 ];
 then
-  echo "Docker compose problem encountered"
+  echo "Problem encountered running containers via Docker compose"
   exit 1
 fi

@@ -105,10 +105,11 @@ function _M.run(config)
     end
   end
 
-  -- Move this to the schema, which perhaps should have a map?
-  if zone then
-    ngx.log(ngx.INFO, "*** UPDATING HOST")
-    ngx.var.host = 'internal-curity-' .. zone
+  -- Update the host name if a zone is found
+  if zone == 'eu' then
+    ngx.ctx.balancer_address.host = config.eu_host
+  elseif zone == 'us' then
+    ngx.ctx.balancer_address.host = config.us_host
   end
 end
 

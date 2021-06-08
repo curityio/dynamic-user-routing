@@ -5,7 +5,9 @@ This ensures that Personally Identifiable Information (PII) never gets stored in
 
 ## Install Prerequisites
 
-Install Docker Desktop and ngrok, then copy a valid `license.json` file into the idsvr folder.
+- Install Docker Desktop and configure memory resources of 8GB
+- Install ngrok
+- Copy a valid `license.json` file into the idsvr folder
 
 ## Configure Internet Access
 
@@ -22,13 +24,18 @@ tunnels:
 
 ## Deploy the System
 
-Then run the following script to deploy Reverse Proxy and Curity docker containers for EU and US regions:
+Then deploy the Reverse Proxy, along with Curity instances for EU and US regions.\
+Then run one of these commands, supplying the name of the reverse proxy you want to use:
 
-- ./run.sh
+- ./run.sh nginx
+- ./run.sh kong
 
-Then run the following command to view logs for each component in separate terminal windows:
+If required, run one of the following commands to view logs for some or all components:
 
-- ./logs.sh
+- ./logs.sh nginx
+- ./logs.sh kong
+- ./logs.sh curity
+- ./logs.sh all
 
 ## Test the System
 

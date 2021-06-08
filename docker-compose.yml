@@ -22,7 +22,7 @@ services:
   # Alternatively deploy this component to run the system using Kong as the reverse proxy
   #
   kong:
-    image: kong:2.4.1-alpine
+    image: custom_kong:2.4.1
     hostname: internal-kong
     ports:
       - 80:8080
@@ -30,12 +30,12 @@ services:
       - default
     volumes:
       - ./kong/kong.yml:/usr/local/kong/declarative/kong.yml
-      - ./kong/zone-transfer-plugin:/usr/local/share/lua/5.1/kong/plugins/zone-transfer
     environment:
       KONG_DATABASE: 'off'
       KONG_DECLARATIVE_CONFIG: '/usr/local/kong/declarative/kong.yml'
       KONG_PROXY_LISTEN: '0.0.0.0:8080'
       KONG_ADMIN_LISTEN: '0.0.0.0:8081'
+      KONG_LOG_LEVEL: 'info'
       KONG_PLUGINS: 'bundled,zone-transfer'
     depends_on:
       - curity_eu
@@ -67,8 +67,6 @@ services:
   curity_eu:
     image: curity.azurecr.io/curity/idsvr:6.2.2
     hostname: internal-curity-eu
-    networks:
-      - default
     volumes:
       - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
       - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
@@ -87,8 +85,6 @@ services:
   curity_us:
     image: curity.azurecr.io/curity/idsvr:6.2.2
     hostname: internal-curity-us
-    networks:
-      - default
     volumes:
       - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
       - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
@@ -106,8 +102,6 @@ services:
   data_eu:
     image: postgres:13.2
     hostname: postgres-eu
-    networks:
-      - default
     volumes:
       - ./idsvr/data-backup-eu.sql:/docker-entrypoint-initdb.d/data-backup-eu.sql
     environment:
@@ -121,14 +115,9 @@ services:
   data_us:
     image: postgres:13.2
     hostname: postgres-us
-    networks:
-      - default
     volumes:
       - ./idsvr/data-backup-us.sql:/docker-entrypoint-initdb.d/data-backup-us.sql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=Password1
       - POSTGRES_DB=idsvr
-
-networks:
-  default:
