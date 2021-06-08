@@ -24,7 +24,7 @@ tunnels:
 
 ## Deploy the System
 
-Then deploy the Reverse Proxy, along with Curity instances for EU and US regions.\
+Then deploy the Reverse Proxy, along with Identity Server instances for EU and US regions.\
 Then run one of these commands, supplying the name of the reverse proxy you want to use:
 
 - ./run.sh nginx

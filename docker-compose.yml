@@ -5,7 +5,7 @@ services:
   #
   # Deploy this component to run the system using NGINX as the reverse proxy
   #
-  openresty:
+  nginx:
     image: custom_openresty:1.19.3.1-8-bionic
     hostname: internal-nginx
     ports:
@@ -13,7 +13,7 @@ services:
     networks:
       - default
     volumes:
-      - ./openresty/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+      - ./reverse-proxy/nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
     depends_on:
       - curity_eu
       - curity_us
@@ -29,7 +29,7 @@ services:
     networks:
       - default
     volumes:
-      - ./kong/kong.yml:/usr/local/kong/declarative/kong.yml
+      - ./reverse-proxy/kong/kong.yml:/usr/local/kong/declarative/kong.yml
     environment:
       KONG_DATABASE: 'off'
       KONG_DECLARATIVE_CONFIG: '/usr/local/kong/declarative/kong.yml'

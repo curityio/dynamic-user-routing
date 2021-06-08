@@ -5,7 +5,7 @@
 #
 GATEWAY=$1
 if [ "$GATEWAY" != "nginx" ] && [ "$GATEWAY" != "kong" ]; then
-  echo "Please specify a gateway as a command line argument, eg './run.sh nginx'"
+  echo "Please specify 'kong' or 'nginx' as a command line argument, eg './run.sh nginx'"
   exit 1
 fi
 
@@ -13,7 +13,7 @@ fi
 # Build the custom Docker image for NGINX
 #
 if [ "$GATEWAY" == "nginx" ]; then
-  docker build --no-cache -f ./openresty/Dockerfile -t custom_openresty:1.19.3.1-8-bionic .
+  docker build --no-cache -f ./reverse-proxy/nginx/Dockerfile -t custom_openresty:1.19.3.1-8-bionic .
   if [ $? -ne 0 ];
   then
     echo "Docker NGINX build problem encountered"
@@ -25,7 +25,7 @@ fi
 # Build the custom Docker image for Kong
 #
 if [ "$GATEWAY" == "kong" ]; then
-  docker build --no-cache -f ./kong/Dockerfile -t custom_kong:2.4.1 .
+  docker build --no-cache -f ./reverse-proxy/kong/Dockerfile -t custom_kong:2.4.1 .
   if [ $? -ne 0 ];
   then
     echo "Docker Kong build problem encountered"
@@ -55,7 +55,7 @@ if [ "$GATEWAY" == "nginx" ]; then
 elif [ "$GATEWAY" == "kong" ]; then
 
   # When running Kong we run zero instances of NGINX
-  docker-compose up --force-recreate --scale openresty=0
+  docker-compose up --force-recreate --scale nginx=0
 fi
 if [ $? -ne 0 ];
 then
