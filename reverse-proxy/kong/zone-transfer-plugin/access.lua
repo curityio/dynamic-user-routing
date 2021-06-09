@@ -99,10 +99,8 @@ function _M.run(config)
   local zone = get_zone_from_cookie(config.cookie_name)
 
   -- Otherwise, for POST messages look in the form body
-  if zone == nil then
-    if method == 'post' then
-      zone = get_zone_from_form(config.claim_name)
-    end
+  if zone == nil and method == 'post' then
+    zone = get_zone_from_form(config.claim_name)
   end
 
   -- Update the host name if a zone is found

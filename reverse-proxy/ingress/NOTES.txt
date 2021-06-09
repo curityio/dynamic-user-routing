@@ -1,0 +1,28 @@
+DEPLOYMENT GUIDE
+----------------
+Install the Kong Ingress controller:
+https://docs.konghq.com/kubernetes-ingress-controller/1.3.x/deployment/minikube/
+
+- kubectl create -f https://bit.ly/k4k8s
+- kubectl get all -n kong
+
+Then deploy this echo API and its ingress:
+
+- kubectl apply -f https://bit.ly/echo-service
+- kubectl apply -f echo-ingress.yaml
+
+Run these commands and note that the proxy address is like http://192.168.64.45:31727:
+
+- minikube service kong-kong-proxy --url
+
+export PROXY_ADDRESS=$(minikube service -n kong kong-proxy --url | head -1)
+- curl -i $PROXY_ADDRESS
+
+If there are errors then run this:
+
+- kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
+
+USING THE INGRESS CONTROLLER
+----------------------------
+Then apply this annotation to use Kong as the Ingress controller for Curity:
+kubernetes.io/ingress.class: kong

@@ -1,0 +1,9 @@
+1. Architecture pattern described
+
+2. HOWTO described
+
+3. NGINX specifics
+
+4. Kong specifics
+
+5. Ingress specifics

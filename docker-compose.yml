@@ -10,8 +10,6 @@ services:
     hostname: internal-nginx
     ports:
       - 80:80
-    networks:
-      - default
     volumes:
       - ./reverse-proxy/nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
     depends_on:
@@ -26,8 +24,6 @@ services:
     hostname: internal-kong
     ports:
       - 80:8080
-    networks:
-      - default
     volumes:
       - ./reverse-proxy/kong/kong.yml:/usr/local/kong/declarative/kong.yml
     environment:
@@ -49,8 +45,6 @@ services:
     hostname: internal-curity-admin
     ports:
       - 6749:6749
-    networks:
-      - default
     volumes:
       - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
       - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml

@@ -118,9 +118,9 @@ end
 --
 -- Get the zone value, depending on the OAuth message received
 --
-function _M.get_zone_value(opts)
+function _M.get_zone_value(config)
   
-  if not verify_options(opts) then
+  if not verify_options(config) then
     return nil
   end
   
@@ -130,13 +130,11 @@ function _M.get_zone_value(opts)
   end
 
   -- First see if we can find a value in the zone cookie
-  local zone = get_zone_from_cookie(opts.cookie_name)
+  local zone = get_zone_from_cookie(config.cookie_name)
 
   -- Otherwise, for POST messages look in the form body
-  if zone == nil then
-    if method == 'post' then
-      zone = get_zone_from_form(opts.claim_name)
-    end
+  if zone == nil and method == 'post' then
+    zone = get_zone_from_form(config.claim_name)
   end
 
   return zone
