@@ -86,7 +86,7 @@ local function get_zone_from_form(claim_name)
 end
 
 --
--- Get the zone value, depending on the OAuth message received
+-- Try to read the zone value from an OAuth request
 --
 function _M.run(config)
   
@@ -95,7 +95,7 @@ function _M.run(config)
     return nil
   end
 
-  -- First see if we can find a value in the zone cookie
+  -- First try to find a value in the zone cookie
   local zone = get_zone_from_cookie(config.cookie_name)
 
   -- Otherwise, for POST messages look in the form body
