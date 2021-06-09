@@ -6,7 +6,7 @@ This ensures that Personally Identifiable Information (PII) never gets stored in
 ## Install Prerequisites
 
 - Install Docker Desktop and configure memory resources of 8GB
-- Install ngrok
+- Install and configure ngrok
 - Copy a valid `license.json` file into the idsvr folder
 
 ## Configure Internet Access
@@ -37,7 +37,19 @@ If required, run one of the following commands to view logs for some or all comp
 - ./logs.sh curity
 - ./logs.sh all
 
-## Test the System
+## Access the System
+
+The Curity Identity Server runtime nodes are accessed via the NGINX reverse proxy.\
+Administer the system via the admin node, signing in as user `admin` and password `Password1`.
+
+| Component | Base URL | URL Type |
+| --------- | -------- | -------- |
+| Reverse Proxy | http://curity-demo.ngrok.io | External |
+| Curity Admin Node | https://localhost:6749/admin | External |
+| Curity Europe Runtime | http://internal-curity-eu:8443 | Internal |
+| Curity USA Runtime | http://internal-curity-us:8443 | Internal |
+
+## Test Regional Logins
 
 Browse to https://oauth.tools and add an environment from the below metadata URL:
 
@@ -50,27 +62,3 @@ The login will begin in the EU region, then switch to the US region once the use
 - Client Secret: Password1
 - Sign in as 'testuser.eu' or 'testuser.us' with password 'Password1'
 - Verify from logs that you are routed to the expected Curity instance
-
-Authorization Codes, Access Tokens and Refresh Tokens are configured to use a Wrapped Token format.\
-These are confidential JWTs that allow reverse proxies to route requests based on the zone claim.
-
-## Separated User Data
-
-Query user data for the EU or US region with the following type of command:
-
-- export USERDATA_EU_CONTAINER_ID=$(docker container ls | grep data_eu | awk '{print $1}')
-- docker exec -it $USERDATA_EU_CONTAINER_ID bash
-- export PGPASSWORD=Password1 && psql -p 5432 -d idsvr -U postgres
-- select * from accounts;
-
-## Curity URLs
-
-The Curity Identity Server runtime nodes are accessed via the NGINX reverse proxy.\
-Administer the system via the admin node, signing in as user `admin` and password `Password1`.
-
-| Component | Base URL | URL Type |
-| --------- | -------- | -------- |
-| Reverse Proxy | http://curity-demo.ngrok.io | External |
-| Curity Admin Node | https://localhost:6749/admin | External |
-| Curity Europe Runtime | http://internal-curity-eu:8443 | Internal |
-| Curity USA Runtime | http://internal-curity-us:8443 | Internal |
