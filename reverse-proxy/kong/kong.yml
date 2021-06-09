@@ -1,0 +1,17 @@
+_format_version: '2.1'
+_transform: true
+
+services:
+- name: curity
+  url: http://internal-curity-eu:8443
+  routes:
+  - name: default
+    paths:
+    - /
+  plugins:
+  - name: zone-transfer
+    config:
+      eu_host: internal-curity-eu
+      us_host: internal-curity-us
+      cookie_name: zone
+      claim_name: zone
