@@ -1,4 +1,4 @@
-# User Regional Routing
+# Dynamic User Routing
 
 How to route OAuth requests to a user's home region, in a global deployment.\
 This ensures that Personally Identifiable Information (PII) never gets stored in the wrong region.
