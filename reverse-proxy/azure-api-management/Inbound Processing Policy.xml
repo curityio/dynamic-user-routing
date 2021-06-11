@@ -15,12 +15,14 @@
         <base />
         <set-variable name="zone" value="@{ 
 
+            var zoneCookieName = "zone";
+            var zoneClaimName = "zone";
             var defaultZone = "eu";
 
             // First look for the zone in a cookie
             var rawCookie = context.Request.Headers.GetValueOrDefault("cookie", "");
             string[] cookies = rawCookie.Split(new string[]{",", ";"}, StringSplitOptions.None);
-            string zoneCookie = cookies.FirstOrDefault( c => c.Trim().Contains("zone="));
+            string zoneCookie = cookies.FirstOrDefault( c => c.Trim().Contains($"{zoneCookieName}="));
             if (zoneCookie != null) {
                 return zoneCookie.Split('=')[1];
             }
@@ -73,7 +75,7 @@
                         // Return the zone claim if found
                         if (!String.IsNullOrWhiteSpace(wrappedToken)) {
 
-                            var zoneClaim = wrappedToken.AsJwt()?.Claims["zone"].FirstOrDefault();
+                            var zoneClaim = wrappedToken.AsJwt()?.Claims[zoneClaimName].FirstOrDefault();
                             if (!String.IsNullOrWhiteSpace(zoneClaim)) {
                                 return zoneClaim;
                             }
@@ -85,10 +87,13 @@
             return defaultZone;
 
         }" />
-        <set-backend-service base-url="http://mockbin.org" />
+        <set-backend-service base-url="http://internal-curity.eu" />
         <choose>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("zone") == "eu")">
+                <set-backend-service base-url="http://internal-curity.eu" />
+            </when>
             <when condition="@(context.Variables.GetValueOrDefault<string>("zone") == "us")">
-                <set-backend-service base-url="http://curity-demo.ngrok.io" />
+                <set-backend-service base-url="http://internal-curity.us" />
             </when>
         </choose>
     </inbound>
