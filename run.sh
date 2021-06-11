@@ -12,25 +12,21 @@ fi
 #
 # Build the custom Docker image for NGINX
 #
-if [ "$GATEWAY" == "nginx" ]; then
-  docker build --no-cache -f ./reverse-proxy/nginx/Dockerfile -t custom_openresty:1.19.3.1-8-bionic .
-  if [ $? -ne 0 ];
-  then
-    echo "Docker NGINX build problem encountered"
-    exit 1
-  fi
+docker build --no-cache -f ./reverse-proxy/nginx/Dockerfile -t custom_openresty:1.19.3.1-8-bionic .
+if [ $? -ne 0 ];
+then
+  echo "Docker NGINX build problem encountered"
+  exit 1
 fi
 
 #
 # Build the custom Docker image for Kong
 #
-if [ "$GATEWAY" == "kong" ]; then
-  docker build --no-cache -f ./reverse-proxy/kong/Dockerfile -t custom_kong:2.4.1 .
-  if [ $? -ne 0 ];
-  then
-    echo "Docker Kong build problem encountered"
-    exit 1
-  fi
+docker build --no-cache -f ./reverse-proxy/kong/Dockerfile -t custom_kong:2.4.1 .
+if [ $? -ne 0 ];
+then
+  echo "Docker Kong build problem encountered"
+  exit 1
 fi
 
 #
@@ -38,24 +34,17 @@ fi
 #
 kill -9 $(pgrep ngrok) 2>/dev/null
 ngrok start --all &
-if [ $? -ne 0 ];
-then
-  echo "NGROK problem encountered"
-  exit 1
-fi
 
 #
 # Run all Docker containers
 #
 if [ "$GATEWAY" == "nginx" ]; then
 
-  # When running NGINX we run zero instances of Kong
-  docker-compose up --force-recreate --scale kong=0
+  docker-compose --profile nginx up --force-recreate
 
 elif [ "$GATEWAY" == "kong" ]; then
 
-  # When running Kong we run zero instances of NGINX
-  docker-compose up --force-recreate --scale nginx=0
+  docker-compose --profile kong up --force-recreate
 fi
 if [ $? -ne 0 ];
 then

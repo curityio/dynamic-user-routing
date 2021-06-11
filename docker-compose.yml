@@ -12,6 +12,8 @@ services:
       - 80:80
     volumes:
       - ./reverse-proxy/nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+    profiles:
+      - nginx
     depends_on:
       - curity_eu
       - curity_us
@@ -26,6 +28,8 @@ services:
       - 80:8080
     volumes:
       - ./reverse-proxy/kong/kong.yml:/usr/local/kong/declarative/kong.yml
+    profiles:
+      - kong
     environment:
       KONG_DATABASE: 'off'
       KONG_DECLARATIVE_CONFIG: '/usr/local/kong/declarative/kong.yml'
