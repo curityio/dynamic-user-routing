@@ -88,7 +88,7 @@
         <set-backend-service base-url="http://mockbin.org" />
         <choose>
             <when condition="@(context.Variables.GetValueOrDefault<string>("zone") == "us")">
-                <set-backend-service base-url="http://curity-garcher.eu.ngrok.io" />
+                <set-backend-service base-url="http://curity-demo.ngrok.io" />
             </when>
         </choose>
     </inbound>
