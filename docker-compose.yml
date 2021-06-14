@@ -80,7 +80,7 @@ services:
       - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
       - SERVICE_ROLE=Europe
-      - SERVICE_NAME=Europe
+      - SERVICE_NAME=Europe1
       - BASE_URL=${BASE_URL}
     depends_on:
       - curity_admin
@@ -100,7 +100,7 @@ services:
       - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
       - SERVICE_ROLE=USA
-      - SERVICE_NAME=USA
+      - SERVICE_NAME=USA1
       - BASE_URL=${BASE_URL}
     depends_on:
       - curity_admin

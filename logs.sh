@@ -7,15 +7,15 @@ if [ "$ARG" == "" ]; then
 fi
 
 if [ "$ARG" == "nginx" ] || [ "$ARG" == "all" ]; then
-    open -a Terminal.app logs/logs-nginx.sh
+    open -a Terminal logs/logs-nginx.sh
 fi
 
 if [ "$ARG" == "kong" ] || [ "$ARG" == "all" ]; then
-    open -a Terminal.app logs/logs-kong.sh
+    open -a Terminal logs/logs-kong.sh
 fi
 
 if [ "$ARG" == "curity" ] || [ "$ARG" == "all" ]; then
-    open -a Terminal.app logs/logs-curity-admin.sh
-    open -a Terminal.app logs/logs-curity-eu.sh
-    open -a Terminal.app logs/logs-curity-us.sh
+    open -a Terminal logs/logs-curity-admin.sh
+    open -a Terminal logs/logs-curity-eu.sh
+    open -a Terminal logs/logs-curity-us.sh
 fi
