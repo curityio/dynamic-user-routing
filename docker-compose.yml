@@ -63,6 +63,7 @@ services:
     environment:
       - PASSWORD=Password1
       - SERVICE_ROLE=admin
+      - SERVICE_NAME=Admin
 
   #
   # This Curity instance receives requests inside the cluster at the following type of URL:
@@ -78,6 +79,7 @@ services:
       - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
       - SERVICE_ROLE=Europe
+      - SERVICE_NAME=Europe
     depends_on:
       - curity_admin
       - data_eu
@@ -96,6 +98,7 @@ services:
       - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
       - SERVICE_ROLE=USA
+      - SERVICE_NAME=USA
     depends_on:
       - curity_admin
       - data_us
