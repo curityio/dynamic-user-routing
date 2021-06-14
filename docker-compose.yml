@@ -64,6 +64,7 @@ services:
       - PASSWORD=Password1
       - SERVICE_ROLE=admin
       - SERVICE_NAME=Admin
+      - BASE_URL=${BASE_URL}
 
   #
   # This Curity instance receives requests inside the cluster at the following type of URL:
@@ -80,6 +81,7 @@ services:
     environment:
       - SERVICE_ROLE=Europe
       - SERVICE_NAME=Europe
+      - BASE_URL=${BASE_URL}
     depends_on:
       - curity_admin
       - data_eu
@@ -99,6 +101,7 @@ services:
     environment:
       - SERVICE_ROLE=USA
       - SERVICE_NAME=USA
+      - BASE_URL=${BASE_URL}
     depends_on:
       - curity_admin
       - data_us

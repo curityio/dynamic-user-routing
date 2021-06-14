@@ -6,26 +6,14 @@ This ensures that Personally Identifiable Information (PII) never gets stored in
 ## Install Prerequisites
 
 - Install Docker Desktop and configure memory resources of 8GB
-- Install and configure ngrok
+- Install ngrok
+- Install jq
 - Copy a valid `license.json` file into the idsvr folder
-
-## Configure Internet Access
-
-Map port 80 to your ngrok domain, similar to the following.\
-Do a search on this repo's files and replace `curity-demo` with your own domain:
-
-```yaml
-tunnels:
-    curity:
-        proto: http
-        addr: 80
-        hostname: curity-demo.ngrok.io
-```
 
 ## Deploy the System
 
-Then deploy the Reverse Proxy, along with Identity Server instances for EU and US regions.\
-Then run one of these commands, supplying the name of the reverse proxy you want to use:
+Deploy the Reverse Proxy, along with Identity Server instances for EU and US regions.\
+Run one of these commands, supplying the name of the reverse proxy you want to use:
 
 - ./run.sh nginx
 - ./run.sh kong
@@ -44,16 +32,18 @@ Administer the system via the admin node, signing in as user `admin` and passwor
 
 | Component | Base URL | URL Type |
 | --------- | -------- | -------- |
-| Reverse Proxy | http://curity-demo.ngrok.io | External |
+| Reverse Proxy | https://curity-demo.ngrok.io | External |
 | Curity Admin Node | https://localhost:6749/admin | External |
 | Curity Europe Runtime | http://internal-curity-eu:8443 | Internal |
 | Curity USA Runtime | http://internal-curity-us:8443 | Internal |
+
+The run-script set up the Curity Identity Server to work with the proxy.
 
 ## Test Regional Logins
 
 Browse to https://oauth.tools and add an environment from the below metadata URL:
 
-- http://curity-demo.ngrok.io/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+- https://oauth.tools#new-env=https://curity-demo.ngrok.io/&webfinger=true
 
 Run a Code Flow login for the following client, then redeem the code for tokens.\
 The login will begin in the EU region, then switch to the US region once the user is identified.

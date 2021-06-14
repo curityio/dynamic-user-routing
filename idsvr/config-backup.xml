@@ -2,7 +2,7 @@
   <environments xmlns="https://curity.se/ns/conf/base">
     <environment>
       <name>curity.demo</name>
-      <base-url>https://curity-example.azure-api.net</base-url>
+      <base-url>#{BASE_URL | http://localhost}</base-url>
       <white-listed-proxies>
         <proxy>internal-nginx</proxy>
       </white-listed-proxies>
@@ -32,6 +32,7 @@
           <zone>eu</zone>
           <listening-port>8443</listening-port>
           <protocol>http</protocol>
+          <webfinger/>
           <endpoints>authentication-service-anonymous</endpoints>
           <endpoints>authentication-service-authentication</endpoints>
           <endpoints>authentication-service-registration</endpoints>

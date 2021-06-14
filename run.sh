@@ -15,6 +15,13 @@ fi
 kill -9 $(pgrep ngrok) 2>/dev/null
 ngrok http 80  -log=stdout > /dev/null &
 
+echo "Getting base URL from ngrok"
+sleep 5
+export BASE_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[] | select(.proto == "https") | .public_url')
+
+echo "Exposing local Curity instance at $BASE_URL"
+echo "To begin using this, click here: https://oauth.tools#new-env=${BASE_URL}/&webfinger=true"
+
 #
 # Run all Docker containers
 #
