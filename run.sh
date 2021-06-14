@@ -13,7 +13,7 @@ fi
 # Run ngrok so that we can call the local system over the internet from OAuth tools
 #
 kill -9 $(pgrep ngrok) 2>/dev/null
-ngrok start --all &
+ngrok http 80  -log=stdout > /dev/null &
 
 #
 # Run all Docker containers
