@@ -1,0 +1,109 @@
+<!--
+    IMPORTANT:
+    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.
+    - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.
+    - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.
+    - To add a policy, place the cursor at the desired insertion point and select a policy from the sidebar.
+    - To remove a policy, delete the corresponding policy statement from the policy document.
+    - Position the <base> element within a section element to inherit all policies from the corresponding section element in the enclosing scope.
+    - Remove the <base> element to prevent inheriting policies from the corresponding section element in the enclosing scope.
+    - Policies are applied in the order of their appearance, from the top down.
+    - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.
+-->
+<policies>
+    <inbound>
+        <base />
+        <set-variable name="zone" value="@{ 
+
+            var zoneCookieName = "zone";
+            var zoneClaimName = "zone";
+            var defaultZone = "eu";
+
+            // First look for the zone in a cookie
+            var rawCookie = context.Request.Headers.GetValueOrDefault("cookie", "");
+            string[] cookies = rawCookie.Split(new string[]{",", ";"}, StringSplitOptions.None);
+            string zoneCookie = cookies.FirstOrDefault( c => c.Trim().Contains($"{zoneCookieName}="));
+            if (zoneCookie != null) {
+                return zoneCookie.Split('=')[1];
+            }
+
+            if (context.Request.Method.ToUpper() == "POST") {
+
+                // For POST requests we will look in the form body
+                var body = context.Request.Body.As<String>();
+                if (!String.IsNullOrWhiteSpace(body)) {
+
+                    string[] fields = body.Split('&');
+                    var form = new Dictionary<String, String>();
+                    foreach (string field in fields)
+                    {
+                        string[] parts = field.Split('=');
+                        form.Add(parts[0], parts[1]);
+                    }
+
+                    if (form.Count > 0) {
+
+                        // Look for a wrapped token
+                        string wrappedToken = "";
+                        string grantType;
+                        if (form.TryGetValue("grant_type", out grantType)) {
+
+                            if (grantType == "refresh_token") {
+
+                                string refreshToken;
+                                if (form.TryGetValue("refresh_token", out refreshToken)) {
+                                    wrappedToken = refreshToken;
+                                }
+                            }
+                            else if (grantType == "authorization_code") {
+
+                                string code;
+                                if (form.TryGetValue("code", out code)) {
+                                    wrappedToken = code;
+                                }
+                            }
+                            else {
+
+                                 string token;
+                                 string state;
+                                 if (form.TryGetValue("token", out token) && !form.TryGetValue("state", out state)) {
+                                    wrappedToken = token;
+                                 }
+                            }
+                        }
+
+                        // Return the zone claim if found
+                        if (!String.IsNullOrWhiteSpace(wrappedToken)) {
+
+                            var zoneClaim = wrappedToken.AsJwt()?.Claims[zoneClaimName].FirstOrDefault();
+                            if (!String.IsNullOrWhiteSpace(zoneClaim)) {
+                                return zoneClaim;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return defaultZone;
+
+        }" />
+        <set-backend-service base-url="http://internal-curity.eu" />
+        <choose>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("zone") == "eu")">
+                <set-backend-service base-url="http://internal-curity.eu" />
+            </when>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("zone") == "us")">
+                <set-backend-service base-url="http://internal-curity.us" />
+            </when>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
