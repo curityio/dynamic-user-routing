@@ -13,15 +13,18 @@ This ensures that Personally Identifiable Information (PII) never gets stored in
 ## Deploy the System
 
 Run one of these commands, supplying the name of the reverse proxy you want to use.\
-This will deploy the Reverse Proxy, along with Identity Server instances for EU and US regions.
+Copy the ngrok URL when prompted, for providing to OAuth Tools.
 
 - ./run.sh nginx
 - ./run.sh kong
 
+Then press enter to open OAuth Tools and to deploy the Docker components.
+The Reverse Proxy will be deployed, along with Identity Server instances for EU and US regions.
+
 ## Access the System
 
-The Curity Identity Server runtime nodes are accessed via the Reverse Proxy.\
-The Reverse Proxy gets a generated ngrok URL similar to that shown below.\
+Once the system is up, select 'Use Webfinger' in OAuth tools and enter the ngrok URL.\
+The Curity Identity Server runtime nodes are accessed via the Reverse Proxy, which uses the ngrok URL.\
 Administer the system via the admin node, signing in as user `admin` and password `Password1`.
 
 | Component | Base URL | URL Type |
@@ -33,8 +36,8 @@ Administer the system via the admin node, signing in as user `admin` and passwor
 
 ## Test Regional Logins
 
-Run a Code Flow login for the following client, then redeem the code for tokens.\
-The login will begin in the EU region, then switch to the US region once the user is identified.
+In OAuth Tools, run a Code Flow login for the following client, then redeem the code for tokens.\
+The login will begin in the EU region, then may switch to the US region once the user is identified.
 
 - Client ID: tools-client
 - Client Secret: Password1
