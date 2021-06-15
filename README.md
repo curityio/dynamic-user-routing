@@ -18,7 +18,7 @@ Copy the ngrok URL when prompted, for providing to OAuth Tools.
 - ./run.sh nginx
 - ./run.sh kong
 
-Then press enter to open OAuth Tools and to deploy the Docker components.\
+Then press enter to open OAuth Tools and to deploy the Docker components.
 The Reverse Proxy will be deployed, along with Identity Server instances for EU and US regions.
 
 ## Access the System
