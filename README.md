@@ -21,6 +21,35 @@ Copy the ngrok URL when prompted, for providing to OAuth Tools.
 Then press enter to open OAuth Tools and to deploy the Docker components.\
 The Reverse Proxy will be deployed, along with Identity Server instances for EU and US regions.
 
+### Deploy without a reverse proxy
+
+If you want to deploy the multi-region cluster of the Curity Identity Server without any reverse proxy (e.g. to use it 
+with an online Gateway like Cloudflare), then make sure to uncomment lines in `docker-compose.yml` to expose ports of
+the runtime nodes. Then start the cluster with the command:
+
+```bash
+docker-compose up curity_eu curity_us
+```
+
+Then you can expose the zones with ngrok by using the following configuration. You can omit the `hostname` parameter if
+you don't use named domains with ngrok. Ngrok will assign random names to your domains.
+
+```yaml
+console_ui: false
+tunnels:
+    curity_us:
+        proto: http
+        addr: 8444
+        hostname: idsvr-us.ngrok.io
+    curity_eu:
+        proto: http
+        addr: 8443
+        hostname: idsvr-eu.ngrok.io
+```
+
+You should then access the system using the URL which points to your gateway. You will also have to change the base URL
+of the Curity Identity Server in the **System** -> **General** tab. Set it to the URL which points to your gateway.
+
 ## Access the System
 
 Once the system is up, select 'Use Webfinger' in OAuth tools and enter the ngrok URL.\
@@ -52,3 +81,10 @@ If required, run one of the following commands to view logs for some or all comp
 - ./logs.sh kong
 - ./logs.sh curity
 - ./logs.sh all
+
+## Running the Cloudflare worker
+
+In the `cloudlfare-worker` folder you will find the code of an example Cloudflare worker capable of performing the user routing.
+To install the worker run `wrangler publish` from that folder. Remember to fill proper data in the `wrangler.toml` file.
+At the beginning of the `index.js` file there is a map of zone ids and URLs, which you have to properly set to URLs used
+by your zones.
