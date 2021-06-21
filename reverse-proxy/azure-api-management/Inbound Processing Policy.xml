@@ -87,13 +87,13 @@
             return defaultZone;
 
         }" />
-        <set-backend-service base-url="http://internal-curity.eu" />
+        <set-backend-service base-url="http://idsvr-eu.ngrok.io" />
         <choose>
             <when condition="@(context.Variables.GetValueOrDefault<string>("zone") == "eu")">
-                <set-backend-service base-url="http://internal-curity.eu" />
+                <set-backend-service base-url="https://idsvr-eu.ngrok.io" />
             </when>
             <when condition="@(context.Variables.GetValueOrDefault<string>("zone") == "us")">
-                <set-backend-service base-url="http://internal-curity.us" />
+                <set-backend-service base-url="https://idsvr-us.ngrok.io" />
             </when>
         </choose>
     </inbound>
