@@ -73,6 +73,9 @@ services:
   curity_eu:
     image: curity.azurecr.io/curity/idsvr:6.2.2
     hostname: internal-curity-eu
+# Uncomment if you plan to expose this instance, e.g. with ngrok
+#    ports:
+#      - 8443:8443
     volumes:
       - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
       - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
@@ -93,6 +96,9 @@ services:
   curity_us:
     image: curity.azurecr.io/curity/idsvr:6.2.2
     hostname: internal-curity-us
+# Uncomment if you plan to expose this instance, e.g. with ngrok
+#    ports:
+#      - 8444:8443
     volumes:
       - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
       - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml

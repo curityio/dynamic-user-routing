@@ -52,3 +52,8 @@ If required, run one of the following commands to view logs for some or all comp
 - ./logs.sh kong
 - ./logs.sh curity
 - ./logs.sh all
+
+## Cloud Reverse Proxies
+
+If you use a cloud Reverse Proxy, have a look at the [CLOUD.md](CLOUD.md) document to learn how to configure Dynamic User
+Routing in such a case.
