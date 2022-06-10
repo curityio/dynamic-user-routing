@@ -57,3 +57,14 @@ If required, run one of the following commands to view logs for some or all comp
 
 If you use a cloud Reverse Proxy, have a look at the [CLOUD.md](CLOUD.md) document to learn how to configure Dynamic User
 Routing in such a case.
+
+## Website Documentation
+
+See the Curity website resources for further information:
+
+- [Dynamic User Routing Design](https://curity.io/resources/learn/dynamic-user-routing/)
+- [Implementing Dynamic User Routing](https://curity.io/resources/learn/implementing-dynamic-user-routing/)
+
+## More Information
+
+Please visit [curity.io](https://curity.io/) for more information about the Curity Identity Server.
