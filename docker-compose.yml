@@ -28,7 +28,7 @@ services:
     build:
       context: .
       dockerfile: ./reverse-proxy/kong/Dockerfile
-    image: custom_kong:2.4.1
+    image: custom_kong:2.8.1
     hostname: internal-kong
     ports:
       - 80:8080
@@ -51,7 +51,7 @@ services:
   # This Curity admin node runs at https://localhost:6749/admin
   #
   curity_admin:
-    image: curity.azurecr.io/curity/idsvr:6.2.2
+    image: curity.azurecr.io/curity/idsvr:7.2.0
     hostname: internal-curity-admin
     ports:
       - 6749:6749
@@ -71,7 +71,7 @@ services:
   # http://internal-curity-eu:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
   #
   curity_eu:
-    image: curity.azurecr.io/curity/idsvr:6.2.2
+    image: curity.azurecr.io/curity/idsvr:7.2.0
     hostname: internal-curity-eu
 # Uncomment if you plan to expose this instance, e.g. with ngrok
 #    ports:
@@ -94,7 +94,7 @@ services:
   # http://internal-curity-us:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
   #
   curity_us:
-    image: curity.azurecr.io/curity/idsvr:6.2.2
+    image: curity.azurecr.io/curity/idsvr:7.2.0
     hostname: internal-curity-us
 # Uncomment if you plan to expose this instance, e.g. with ngrok
 #    ports:
