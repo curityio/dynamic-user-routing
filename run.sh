@@ -13,7 +13,7 @@ fi
 # Run ngrok so that we can call the local system over the internet from OAuth tools
 #
 kill -9 $(pgrep ngrok) 2>/dev/null
-ngrok http 80 -log=stdout &
+ngrok http 80 --log=stdout &
 if [ $? -ne 0 ];
 then
   echo "Problem encountered starting ngrok, please ensure that it is installed"
