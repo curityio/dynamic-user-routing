@@ -1,4 +1,4 @@
-FROM openresty/openresty:1.19.3.1-8-bionic
+FROM openresty/openresty:1.21.4.1-bionic
 
 RUN luarocks install lua-resty-jwt
 

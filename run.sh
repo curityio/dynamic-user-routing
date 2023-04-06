@@ -1,5 +1,16 @@
 #!/bin/bash
 
+cd "$(dirname "${BASH_SOURCE[0]}")"
+cp ./hooks/pre-commit ./.git/hooks
+
+#
+# First check that a license file has been supplied
+#
+if [ ! -f './idsvr/license.json' ]; then
+  echo "Please provide a license.json file in the idsvr folder in order to deploy the system"
+  exit 1
+fi
+
 #
 # Get the command line parameter that specifies which gateway to use
 #
@@ -32,7 +43,7 @@ export BASE_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[] 
 #
 echo
 echo "*** Copy this URL, then press enter to start OAuth Tools and deploy the Docker system ***"
-echo "*** Once the Docker system is up, select use Webfinger in OAuth Tools and paste this URL as the resource ***"
+echo "*** Wait for the Docker system to come up, select use Webfinger in OAuth Tools, then paste this URL as the resource ***"
 echo $BASE_URL
 read
 open "https://oauth.tools#new-env=dynamic-user-routing/&webfinger=true"
@@ -40,6 +51,7 @@ open "https://oauth.tools#new-env=dynamic-user-routing/&webfinger=true"
 #
 # Start running Docker containers
 #
+docker compose --project-name dynamic-user-routing down
 if [ "$GATEWAY" == "nginx" ]; then
 
   docker-compose --profile nginx up --force-recreate --build
@@ -47,9 +59,9 @@ if [ "$GATEWAY" == "nginx" ]; then
 elif [ "$GATEWAY" == "kong" ]; then
 
   docker-compose --profile kong up --force-recreate --build
+
 fi
-if [ $? -ne 0 ];
-then
+if [ $? -ne 0 ]; then
   echo "Problem encountered running the Docker compose system"
   exit 1
 fi

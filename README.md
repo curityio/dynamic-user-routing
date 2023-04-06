@@ -13,13 +13,15 @@ This ensures that Personally Identifiable Information (PII) never gets stored in
 ## Deploy the System
 
 Run one of these commands, supplying the name of the reverse proxy you want to use.\
-Copy the ngrok URL when prompted, for providing to OAuth Tools.
+When prompted, copy the ngrok URL, such as https://5036fca5f99d.eu.ngrok.io, for providing to OAuth Tools:
 
-- ./run.sh nginx
-- ./run.sh kong
+```bash
+./run.sh nginx
+./run.sh kong
+```
 
 Then press enter to open OAuth Tools and to deploy the Docker components.\
-The Reverse Proxy will be deployed, along with Identity Server instances for EU and US regions.
+The reverse proxy will be deployed, along with Curity Identity Server instances for EU and US regions.
 
 ## Access the System
 
@@ -46,17 +48,25 @@ The login will begin in the EU region, then may switch to the US region once the
 
 ## View Logs
 
-If required, run one of the following commands to view logs for some or all components:
+The console outputs logs for all components, whose docker IDs can be retrieved with these commands:
 
-- ./logs.sh nginx
-- ./logs.sh kong
-- ./logs.sh curity
-- ./logs.sh all
+```bash
+export CURITY_EU_CONTAINER_ID=$(docker container ls | grep curity_eu | awk '{print $1}')
+export CURITY_US_CONTAINER_ID=$(docker container ls | grep curity_us | awk '{print $1}')
+export KONG_CONTAINER_ID=$(docker container ls | grep kong | awk '{print $1}')
+export NGINX_CONTAINER_ID=$(docker container ls | grep openresty | awk '{print $1}')
+```
+
+To view proxy server logs in a separate terminal window, use a command of this form:
+
+```bash
+docker logs -f $NGINX_CONTAINER_ID
+```
 
 ## Cloud Reverse Proxies
 
-If you use a cloud Reverse Proxy, have a look at the [CLOUD.md](CLOUD.md) document to learn how to configure Dynamic User
-Routing in such a case.
+If you use a cloud reverse proxy, have a look at the [CLOUD.md](CLOUD.md) document to learn how to configure dynamic user
+routing in such a case.
 
 ## Website Documentation
 

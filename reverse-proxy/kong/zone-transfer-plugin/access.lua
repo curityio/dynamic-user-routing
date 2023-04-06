@@ -105,9 +105,9 @@ function _M.run(config)
 
   -- Update the host name if a zone is found
   if zone == 'eu' then
-    ngx.ctx.balancer_address.host = config.eu_host
+    ngx.ctx.balancer_data.host = config.eu_host
   elseif zone == 'us' then
-    ngx.ctx.balancer_address.host = config.us_host
+    ngx.ctx.balancer_data.host = config.us_host
   end
 end
 
