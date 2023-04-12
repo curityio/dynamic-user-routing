@@ -1,4 +1,4 @@
-FROM kong:3.1.1-ubuntu
+FROM kong:3.1.1-alpine
 
 USER root
 RUN luarocks install lua-resty-jwt
