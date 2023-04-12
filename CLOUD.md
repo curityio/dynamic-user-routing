@@ -65,14 +65,6 @@ The login will begin in the EU region, then may switch to the US region once the
 - Sign in as 'testuser.eu' or 'testuser.us' with password 'Password1'
 - Verify from logs that you are routed to the expected Curity instance
 
-## View Logs
-
-If required, run one of the following commands to view logs for the runtime nodes:
-
-```bash
-./logs.sh curity
-```
-
 ## Configuring example Cloud Reverse Proxies
 
 ### Running the Cloudflare worker

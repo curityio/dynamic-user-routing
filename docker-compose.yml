@@ -9,7 +9,7 @@ services:
     build:
       context: .
       dockerfile: ./reverse-proxy/nginx/Dockerfile
-    image: custom_openresty:1.19.3.1-8-bionic
+    image: custom_openresty:1.21.4.1-bionic
     hostname: internal-nginx
     ports:
       - 80:80
@@ -28,7 +28,7 @@ services:
     build:
       context: .
       dockerfile: ./reverse-proxy/kong/Dockerfile
-    image: custom_kong:2.8.1
+    image: custom_kong:3.1.1-alpine
     hostname: internal-kong
     ports:
       - 80:8080
@@ -51,7 +51,7 @@ services:
   # This Curity admin node runs at https://localhost:6749/admin
   #
   curity_admin:
-    image: curity.azurecr.io/curity/idsvr:7.2.0
+    image: curity.azurecr.io/curity/idsvr:latest
     hostname: internal-curity-admin
     ports:
       - 6749:6749
@@ -59,7 +59,6 @@ services:
       - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
       - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
       - ./idsvr/config-backup.xml:/opt/idsvr/etc/init/config.xml
-      - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
       - PASSWORD=Password1
       - SERVICE_ROLE=admin
@@ -71,16 +70,15 @@ services:
   # http://internal-curity-eu:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
   #
   curity_eu:
-    image: curity.azurecr.io/curity/idsvr:7.2.0
+    image: curity.azurecr.io/curity/idsvr:latest
     hostname: internal-curity-eu
-# Uncomment if you plan to expose this instance, e.g. with ngrok
+# Uncomment if you need to expose this instance, e.g. in cloud setups
 #    ports:
 #      - 8443:8443
     volumes:
       - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
       - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
       - ./idsvr/config-backup.xml:/opt/idsvr/etc/init/config.xml
-      - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
       - SERVICE_ROLE=Europe
       - SERVICE_NAME=Europe1
@@ -94,16 +92,15 @@ services:
   # http://internal-curity-us:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
   #
   curity_us:
-    image: curity.azurecr.io/curity/idsvr:7.2.0
+    image: curity.azurecr.io/curity/idsvr:latest
     hostname: internal-curity-us
-# Uncomment if you plan to expose this instance, e.g. with ngrok
+# Uncomment if you need to expose this instance, e.g. in cloud setups
 #    ports:
 #      - 8444:8443
     volumes:
       - ./idsvr/license.json:/opt/idsvr/etc/init/license/license.json
       - ./idsvr/cluster-configuration.xml:/opt/idsvr/etc/init/cluster-configuration.xml
       - ./idsvr/config-backup.xml:/opt/idsvr/etc/init/config.xml
-      - ./idsvr/log4j2.xml:/opt/idsvr/etc/log4j2.xml
     environment:
       - SERVICE_ROLE=USA
       - SERVICE_NAME=USA1
@@ -116,7 +113,7 @@ services:
   # The data for the EU instance of the Curity Identity Server contains the user 'testuser.eu'
   #
   data_eu:
-    image: postgres:13.2
+    image: postgres:15.2
     hostname: postgres-eu
     volumes:
       - ./idsvr/data-backup-eu.sql:/docker-entrypoint-initdb.d/data-backup-eu.sql
@@ -129,7 +126,7 @@ services:
   # The data for the US instance of the Curity Identity Server contains the user 'testuser.us'
   #
   data_us:
-    image: postgres:13.2
+    image: postgres:15.2
     hostname: postgres-us
     volumes:
       - ./idsvr/data-backup-us.sql:/docker-entrypoint-initdb.d/data-backup-us.sql
