@@ -21,7 +21,7 @@ When prompted, copy the ngrok URL, such as https://5036fca5f99d.eu.ngrok.io, for
 ```
 
 Then press enter to open OAuth Tools and to deploy the Docker components.\
-The reverse proxy will be deployed, along with Curity Identity Server instances for EU and US regions.
+The reverse proxy will be deployed, along with instances of the Curity Identity Server for EU and US regions.
 
 ## Access the System
 
