@@ -1,5 +1,8 @@
 # Dynamic User Routing
 
+[![Quality](https://img.shields.io/badge/quality-demo-red)](https://curity.io/resources/code-examples/status/)
+[![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
+
 How to route OAuth requests to a user's home region, in a global deployment.\
 This ensures that Personally Identifiable Information (PII) never gets stored in the wrong region.
 
